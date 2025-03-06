@@ -1,0 +1,17 @@
+salloc --nodes=1 --ntasks-per-node=1 --cpus-per-task=16 --mem=32G --job-name=CFL --partition=general --account=AccountString srun --export=PATH,TERM,HOME,LANG --pty /bin/bash -l
+
+salloc -c 4 --ntasks-per-node=1 --cpus-per-task=4 --mem=8G --job-name=SUBtab -t 4320 srun --export=PATH,TERM,HOME,LANG --pty /bin/bash -l
+
+module load anaconda3
+source activate /scratch/user/uqaginan/RQ3/
+
+watch -p -n 1 scontrol show jobid -dd
+
+
+python -m biometric_blender --n-classes 10 --n-samples-per-class 5000  --n-features-out 1600 --output syn.hdf5 --min-usefulness 0.1 --max-usefulness 0.5
+
+blog 512 0.001
+sensorless 256 1
+income 256 0.001
+covtype 256 1
+syn 2048 0.0001 

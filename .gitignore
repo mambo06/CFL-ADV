@@ -1,0 +1,11 @@
+data/
+results/
+resultsNoPearson/
+resultsPearson/
+__pycache__/
+*.ipynb
+*.csv
+*.png
+*.ipynb
+*.sh
+.DS_Store
