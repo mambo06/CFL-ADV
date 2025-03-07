@@ -104,18 +104,16 @@ class Client:
         self.tloss = tloss
         return tloss
     
-    def train_multiple_epochs(self, num_epochs):
-        total_loss = 0
-        for _ in range(num_epochs):
-            epoch_loss = self.train_single_epoch()
-            total_loss += epoch_loss
-        return total_loss / num_epochs
+    def poison_model(self):
+        # Scale up the weights significantly to affect the global model
+        for param in self.model.parameters():
+            param.data = param.data * 10  # Scaling attack
     
     def get_model_params(self):
         return copy.deepcopy(self.model.encoder.state_dict())
 
     def step(self):
-        self.optimizer_ae.step()
+        self.model.optimizer_ae.step()
 
 
 def main(config, save_weights):
@@ -144,7 +142,7 @@ def main(config, save_weights):
             for client in clients:
                 model = client.model
                 model.encoder = server.distribute_model()
-                model.optimizer_ae.step()
+                client.step()
                 model.loss["tloss_e"].append(sum(model.loss["tloss_b"][-total_batches:-1]) / total_batches)
 
     for n,client in enumerate(clients):
@@ -341,6 +339,8 @@ if __name__ == "__main__":
     dims = copy.deepcopy(config["dims"])
     cfg = copy.deepcopy(config)
     main(config,save_weights=True)
+    for client in range(config["fl_cluster"]):
+        eval.main(copy.deepcopy(cfg), client)
     
 
     

@@ -64,11 +64,12 @@ def linear_model_eval(config, z_train, y_train, suffix , z_test=None, y_test=Non
         # clf = CatBoostClassifier(verbose=0,
                            # loss_function='MultiClass')
         # clf = xgb.XGBClassifier()
-        clf = lgb.LGBMClassifier(verbose=0, force_col_wise=True)
+        # clf = lgb.LGBMClassifier(verbose=0, force_col_wise=True)
         # clf = RandomForestClassifier()
         # clf = SVC()
         # Fit model to the data
         
+        # print(z_train,z_test)
         clf.fit(z_train, y_train)
         y_hat_train = clf.predict(z_train)
         y_hat_test = clf.predict(z_test)
