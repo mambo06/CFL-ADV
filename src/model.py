@@ -10,7 +10,7 @@ import pandas as pd
 import torch as th
 # from tqdm import tqdm
 
-from utils.loss_functions import JointLoss
+from utils.loss_functionsV1 import JointLoss
 from utils.model_plot import save_loss_plot
 from utils.model_utils import AEWrapper
 from utils.utils import set_seed, set_dirs
@@ -45,8 +45,8 @@ class SubTab:
         # Set directories i.e. create ones that are missing.
         set_dirs(self.options)
         # Set the condition if we need to build combinations of 2 out of projections. 
-        # self.is_combination = self.options["contrastive_loss"] or self.options["distance_loss"]
-        self.is_combination = True # set this to true cause z loss 0 ! code realted
+        self.is_combination = self.options["contrastive_loss"] or self.options["distance_loss"]
+        # self.is_combination = True # set this to true cause z loss 0 ! code realted
         # ------Network---------
         # Instantiate networks
         print("Building the models for training and evaluation in SubTab framework...")
@@ -454,7 +454,9 @@ class SubTab:
         # Get subset of features to create list of cropped data
         # print(subset_column_idx_list)
         x_tilde_list = []
+        self.low = False 
         for z, subset_column in enumerate(subset_column_list):
+            self.low = not self.low
             x_bar = subset_column #[:, subset_column_idx]
             # Add noise to cropped columns - Noise types: Zero-out, Gaussian, or Swap noise
             if self.options["add_noise"]:
@@ -462,6 +464,7 @@ class SubTab:
 
                 # Generate binary mask
                 p_m = self.options["masking_ratio"]
+                if self.low : p_m = 1 - p_m
                 mask = np.random.binomial(1, p_m, x_bar.shape)
 
                 # Replace selected x_bar features with the noisy ones
@@ -488,6 +491,7 @@ class SubTab:
         # Get noise type
         noise_type = self.options["noise_type"]
         noise_level = self.options["noise_level"]
+        if self.low : noise_level = 1 -  noise_level
 
         # Initialize corruption array
         x_bar = np.zeros([no, dim])
