@@ -11,8 +11,9 @@ import torch as th
 import random
 
 import sys
-# sys.path.append("..")
-# print(sys.path)
+from utils.loss_functionsV1 import JointLoss
+from utils.model_plot import save_loss_plot
+from utils.model_utils import AEWrapper
 # from utils.utils import set_seed, set_dirs
 
 th.autograd.set_detect_anomaly(True)
@@ -36,11 +37,11 @@ class CFL:
         # Create empty lists and dictionary
         self.model_dict, self.summary = {}, {}
         # Set random seed
-        set_seed(self.options)
+        # set_seed(self.options)
         # Set paths for results and initialize some arrays to collect data during training
         self._set_paths()
         # Set directories i.e. create ones that are missing.
-        set_dirs(self.options)
+        # set_dirs(self.options)
         # Set the condition if we need to build combinations of 2 out of projections. 
         self.is_combination = self.options["contrastive_loss"] or self.options["distance_loss"]
         # self.is_combination = True # set this to true cause z loss 0 ! code realted
@@ -564,7 +565,7 @@ class CFL:
         """Used to save weights."""
         for model_name in self.model_dict:
             th.save(self.model_dict[model_name], self._model_path + "/" + model_name + "_"+ prefix + ".pt")
-        print("Done with saving models.")
+        print("Done with saving models. Client :", client)
 
     def load_models(self,client):
         config = self.options

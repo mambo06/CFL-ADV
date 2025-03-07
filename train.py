@@ -28,15 +28,15 @@ class Server:
         
     def aggregate_models(self, client_models):
         # FedAvg aggregation
-        global_dict = self.global_model.state_dict()
+        global_dict = self.global_model.encoder.state_dict()
         
         for k in global_dict.keys():
-            global_dict[k] = torch.stack([client.get_model_params()[k] for client in client_models if client.tloss != None]).mean(0)
+            global_dict[k] = torch.stack([client.get_model_params()[k].float() for client in client_models if client.tloss != None]).mean(0)
             
-        self.global_model.load_state_dict(global_dict)
+        self.global_model.encoder.load_state_dict(global_dict)
         
     def distribute_model(self):
-        return copy.deepcopy(self.global_model)
+        return copy.deepcopy(self.global_model.encoder)
 
 
 class Client:
@@ -55,7 +55,7 @@ class Client:
         # syncFed = True
         x,y = next(islice(train_loader, i, None))
 
-        np.random.seed(epoch)
+        # np.random.seed(epoch)
         idx = np.random.permutation(x.shape[0])
         x = x[idx]
         y = y[idx]
@@ -99,7 +99,7 @@ class Client:
         model.loss["rloss_b"].append(rloss.item())
         model.loss["zloss_b"].append(zloss.item())
 
-        epoch_loss += tloss.item()
+        # epoch_loss += tloss.item()
         tloss.backward()
         self.tloss = tloss
         return tloss
@@ -112,13 +112,13 @@ class Client:
         return total_loss / num_epochs
     
     def get_model_params(self):
-        return copy.deepcopy(self.model.state_dict())
+        return copy.deepcopy(self.model.encoder.state_dict())
 
     def step(self):
         self.optimizer_ae.step()
 
 
-def main(config):
+def main(config, save_weights):
     set_dirs(config)
     set_seed(config)
     # Get data loader for first dataset.
@@ -142,9 +142,10 @@ def main(config):
             server.aggregate_models(clients)
 
             for client in clients:
-                client.model = server.distribute_model()
-                client.step()
-                client.loss["tloss_e"].append(sum(model.loss["tloss_b"][-total_batches:-1]) / total_batches)
+                model = client.model
+                model.encoder = server.distribute_model()
+                model.optimizer_ae.step()
+                model.loss["tloss_e"].append(sum(model.loss["tloss_b"][-total_batches:-1]) / total_batches)
 
     for n,client in enumerate(clients):
         model = client.model
@@ -339,7 +340,7 @@ if __name__ == "__main__":
     # Get a copy of autoencoder dimensions
     dims = copy.deepcopy(config["dims"])
     cfg = copy.deepcopy(config)
-    main(config)
+    main(config,save_weights=True)
     
 
     

@@ -9,7 +9,6 @@ from tqdm import tqdm
 import numpy as np
 
 from src.model import CFL
-print(sys.path)
 from utils.arguments import get_arguments, get_config
 from utils.arguments import print_config_summary
 from utils.eval_utils import linear_model_eval, plot_clusters, append_tensors_to_lists, concatenate_lists, aggregate
