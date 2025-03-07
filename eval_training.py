@@ -11,7 +11,7 @@ import mlflow
 import yaml
 
 import eval
-from src.model import SubTab
+from src.model import CFL
 from utils.arguments import get_arguments, get_config, print_config_summary
 from utils.load_data import Loader
 from utils.utils import set_dirs, run_with_profiler, update_config_with_model_dims

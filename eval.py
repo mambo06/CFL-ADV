@@ -28,7 +28,7 @@ def eval(data_loader, config, client, nData):
 
     """
     # Instantiate Autoencoder model
-    model = SubTab(config)
+    model = CFL(config)
     # Load the model
     if not config['baseGlobal'] : model.load_models(client)
 
