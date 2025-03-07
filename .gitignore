@@ -9,3 +9,8 @@ __pycache__/
 *.ipynb
 *.sh
 .DS_Store
+*.pckl
+*.rst
+*.toml
+catboost_info/
+.ipynb_checkpoints/

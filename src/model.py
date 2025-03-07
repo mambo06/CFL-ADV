@@ -8,25 +8,22 @@ import os
 import numpy as np
 import pandas as pd
 import torch as th
-# from tqdm import tqdm
+import random
 
-from utils.loss_functionsV1 import JointLoss
-from utils.model_plot import save_loss_plot
-from utils.model_utils import AEWrapper
-from utils.utils import set_seed, set_dirs
+import sys
+# sys.path.append("..")
+# print(sys.path)
+# from utils.utils import set_seed, set_dirs
 
 th.autograd.set_detect_anomaly(True)
 
-import random
 
 
-class SubTab:
-    """
-    Model: Trains an Autoencoder with a Projection network, using SubTab framework.
-    """
+
+class CFL:
 
     def __init__(self, options):
-        """Class to train an autoencoder model with projection in SubTab framework.
+        """Class to train an autoencoder model with projection in CFL framework.
 
         Args:
             options (dict): Configuration dictionary.
@@ -49,7 +46,7 @@ class SubTab:
         # self.is_combination = True # set this to true cause z loss 0 ! code realted
         # ------Network---------
         # Instantiate networks
-        print("Building the models for training and evaluation in SubTab framework...")
+        print("Building the models for training and evaluation in CFL framework...")
         # Set Autoencoders i.e. setting loss, optimizer, and device assignment (GPU, or CPU)
         self.set_autoencoder()
         # Set scheduler (its use is optional)

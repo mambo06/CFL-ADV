@@ -1,9 +1,4 @@
-"""
-Author: Talip Ucar
-email: ucabtuc@gmail.com
 
-Description: Utility functions.
-"""
 
 import cProfile
 import os
