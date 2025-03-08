@@ -15,7 +15,11 @@ from torchvision import datasets as dts
 import torchvision.transforms as transforms
 import h5py
 from sklearn.datasets import fetch_covtype
-from sklearn.preprocessing import normalize
+from sklearn.preprocessing import normalize, OneHotEncoder
+
+from pathlib import Path
+from category_encoders import LeaveOneOutEncoder
+from sklearn.preprocessing import OrdinalEncoder
 
 
 class Loader(object):
@@ -128,52 +132,42 @@ class TabularDataset(Dataset):
         
 
     def _load_data(self):
-        """Loads one of many available datasets, and returns features and labels"""
+        dirs = [
+             'adult',
+             'aloi',
+             'california_housing',
+             'covtype',
+             'epsilon',
+             'helena',
+             'higgs_small',
+             'jannis',
+             'microsoft',
+             'yahoo',
+             'year'
+            ]
+        # dirs = []
+        dataset_name = self.config['dataset']
 
-        if self.dataset_name.lower() in ["mnist"]:
-            x_train, y_train, x_test, y_test = self._load_mnist()
-            # print(type(x_train))
-        elif self.dataset_name.lower() in ["blog"]:
-            x_train, y_train, x_test, y_test = self._load_blog()
-        elif self.dataset_name.lower() in ["income"]:
-            x_train, y_train, x_test, y_test = self._load_income()
-        elif self.dataset_name.lower() in ["cifar10"]:
-            x_train, y_train, x_test, y_test = self._load_cifar()
-            # print(type(x_train))
-            x_train = tuple(map(self.rgbToGrey, x_train))
-            x_test = tuple(map(self.rgbToGrey, x_test))
-            
-            x_train, y_train, x_test, y_test = list(x_train), list(y_train), list(x_test), list(y_test)
+        dir_ = 'data/'+ dataset_name 
+        if self.config['dataset'] in dirs : # if from other paper, datra not normalized
+            N_train, N_test,N_val, y_train, y_test,y_val = self.joinData(cat_policy=self.config['cat_policy'],normalization=True, norm=self.config['norm'])
+           
+        else : # else data has been normalized
 
-            for i, item in enumerate(x_train) :
-                # print(item[0,:,:].shape)
-                x_train[i] = np.asarray(item) #.ravel()
-            x_train = np.array(x_train)
-            y_train = np.array(y_train)
+            N_train = np.load('data/'+dataset_name+'/N_train.npy')
+            N_test = np.load('data/'+dataset_name+'/N_test.npy')
+            N_val = np.load('data/'+dataset_name+'/N_val.npy')
 
-            for i, item in enumerate(x_test) :
-                x_test[i] = np.asarray(item ) #[0,:,:]).ravel()
-            x_test = np.array(x_test)
-            y_test = np.array(y_test)
+            y_train = np.load('data/'+dataset_name+'/y_train.npy')
+            y_test = np.load('data/'+dataset_name+'/y_test.npy')
+            y_val = np.load('data/'+dataset_name+'/y_val.npy')
 
-            # gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
-            # print(x_train[0][0]*0.2989 + x_train[0][1]*0.5870 + x_train[0][2]*0.1140)
-            
-            # print(x_train[:5])
-
-        elif self.dataset_name.lower() in ["syn"]:
-            x_train, y_train, x_test, y_test = self._load_syn()
-
-        elif self.dataset_name.lower() in ["covtype"]:
-            x_train, y_train, x_test, y_test = self._load_covtype()
-        elif self.dataset_name.lower() in ["tuandromd"]:
-            x_train, y_train, x_test, y_test = self._load_tuandromd()
-        elif self.dataset_name.lower() in ["sensorless"]:
-            x_train, y_train, x_test, y_test = self._load_sensorless()
-        else:
-            print(f"Given dataset name is not found. Check for typos, or missing condition "
-                  f"in _load_data() of TabularDataset class in utils/load_data.py .")
-            exit()
+        x_train, y_train  = N_train[:,:-(N_train.shape[1] % self.config['fl_cluster'])], y_train, 
+        x_test, y_test, = N_test[:,:-(N_train.shape[1] % self.config['fl_cluster'])], y_test, 
+        x_val, y_val = N_val[:,:-(N_train.shape[1] % self.config['fl_cluster'])], y_val
+        
+        x_train = np.vstack((x_train, x_val))
+        y_train = np.hstack((y_train, y_val))
 
         # print(f"dataset {self.config['dataset']} size {x_train.shape}")
 
@@ -220,8 +214,6 @@ class TabularDataset(Dataset):
         x_train_fl = x_train.copy()
         y_train_fl = y_train.copy()
 
-        
-
         # Training data
         x_train = x_train[tr_idx, :]
         y_train = y_train[tr_idx]
@@ -239,7 +231,6 @@ class TabularDataset(Dataset):
                   f"Max value found in features is {np.max(np.abs(x_train))}\n"
                   f"Please check the values of features...")
             exit()
-        
         # Select features and labels, based on the mode
         if self.mode == "train":
             data = x_train
@@ -274,114 +265,92 @@ class TabularDataset(Dataset):
         return np.argsort(np.corrcoef(data.T)[0])
         # return (torch.corrcoef(data.T)[:1,:]).sort()[1][0]
 
-
-    def _load_mnist(self):
-        """Loads MNIST dataset"""
-        
-        self.data_path = os.path.join("data/", "mnist")
-        
-        with open(self.data_path + '/train.npy', 'rb') as f:
-            x_train = np.load(f)
-            y_train = np.load(f)
-
-        with open(self.data_path + '/test.npy', 'rb') as f:
-            x_test = np.load(f)
-            y_test = np.load(f)
-
-        x_train = x_train.reshape(-1, 28 * 28) / 255.
-        x_test = x_test.reshape(-1, 28 * 28) / 255.
-       
-        return x_train, y_train, x_test, y_test
-
-    def _load_blog(self):
-       
-        x_train = np.load("data/blog/xtrain.npy")
-        y_train = np.load("data/blog/ytrain.npy")
-        x_test = np.load("data/blog/xtest.npy")
-        y_test = np.load("data/blog/ytest.npy")
-       
-        return x_train, y_train, x_test, y_test
-
-    def _load_income(self):
-       
-        x_train = np.load("data/income/train_feat_std.npy")
-        y_train = np.load("data/income/train_label.npy")
-        x_test = np.load("data/income/test_feat_std.npy")
-        y_test = np.load("data/income/test_label.npy")
-       
-        return x_train, y_train, x_test, y_test
-
-    def _load_cifar(self):
-        transform = transforms.Compose(
-            [transforms.ToTensor(),
-            transforms.Normalize( (0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261))])
-
-        train = dts.CIFAR10(root="data/",train=True,download=False, transform=transform)
-        test = dts.CIFAR10(root="data/",train=False,download=False, transform=transform)
-
-        x_train,y_train = list(zip(*train))
-        x_test,y_test = list(zip(*test))
-       
-       
-        return x_train, y_train, x_test, y_test
-
-    def _load_syn(self):
-        f = h5py.File('data/syn/syn.hdf5', 'r')
-        inx = np.arange(f['labels'].shape[0])
-        np.random.shuffle(inx)
-       
-        x_train = f['features'][:].T[inx][:-100]
-        y_train = f['labels'][:][inx][:-100]
-        x_test = f['features'][:].T[inx][-100:]
-        y_test = f['labels'][:][inx][-100:]
-        # print(x_train.shape, x_test.shape)   
-       
-        return x_train, y_train, x_test, y_test
-
-    def _load_covtype(self):
-        
-        cov_type = fetch_covtype()
-        X=normalize(cov_type.data, norm="l1")
-        y=cov_type.target
-        x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.01, random_state=1)
-        return x_train, y_train, x_test, y_test
-
-    def _load_tuandromd(self):
-        data = pd.read_csv('data/TUANDROMD/TUANDROMD.csv')
-        data = data.dropna(how='any',axis=0)
-        data = data.values
-        X = data[:,:-2]
-        X=normalize(X, norm="l1")
-        y = data[:,-1]
-
-        inx = np.arange(X.shape[1])
-        np.random.shuffle(inx)
-        X = X[:,inx]
-       
-        x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.01, random_state=1)
-       
-        return x_train, y_train, x_test, y_test
-
-    def _load_sensorless(self):
-        data = np.loadtxt('data/SensorlessDriveDiagnosis/Sensorless_drive_diagnosis.txt')
-        X = data[:,:-1]
-        X=normalize(X, norm="l1")
-        y = data[:,-1]
-
-        np.random.seed(5)
-        inx = np.arange(X.shape[1])
-        np.random.shuffle(inx)
-
-        X = X[:,inx]
-       
-        x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.01, random_state=1)
-       
-        return x_train, y_train, x_test, y_test
-
     def rgbToGrey(self,rgb):
         r = rgb[0]
         g = rgb[1]
         b = rgb[2]
         return (0.2989 * r + 0.5870 * g + 0.1140 * b).flatten()
+
+    def joinData(self, cat_policy='ohe',seed=int(9),normalization=False, norm="l1"):
+        dataset_name = self.config['dataset']
+        dir_ = Path('data/'+ dataset_name + '/normal')
+        y_train = np.load(dir_.joinpath('y_train.npy'))
+        y_test = np.load(dir_.joinpath('y_test.npy'))
+        y_val = np.load(dir_.joinpath('y_val.npy'))
+        # y = np.concatenate((y_train,y_test,y_val), axis=0)
+        y = [y_train,y_test,y_val]
+        result = []
+        
+        if dir_.joinpath('C_train.npy').exists():
+            C_train = np.load(dir_.joinpath('C_train.npy'))
+            C_test = np.load(dir_.joinpath('C_test.npy'))
+            C_val = np.load(dir_.joinpath('C_val.npy'))
+            # C = np.concatenate((C_train,C_test,C_val), axis=0)
+            
+            ord = OrdinalEncoder()
+            C_train = ord.fit_transform(C_train)
+            C_test = ord.transform(C_test)
+            C_val = ord.transform(C_val)
+            C = [C_train,C_test,C_val]
+            
+            
+            if cat_policy == 'indices':
+                C = C
+            elif cat_policy == 'ohe':
+                ohe = OneHotEncoder(
+                    handle_unknown='ignore', sparse=False, dtype='float32'  # type: ignore[code]
+                )
+                ohe.fit(C[0])
+                C[0] = ohe.transform(C[0])
+                C[1] = ohe.transform(C[1])
+                C[2] = ohe.transform(C[2])
+            elif cat_policy == 'counter':
+                assert seed is not None
+                loo = LeaveOneOutEncoder(sigma=0.1, random_state=seed, return_df=False)
+                loo.fit(C[0], y[0])
+                C[0] = loo.transform(C[0])  # type: ignore[code]
+                C[1] = loo.transform(C[1])
+                C[2] = loo.transform(C[2])
+            result = C
+                    
+        if dir_.joinpath('N_train.npy').exists():
+            N_train = np.load(dir_.joinpath('N_train.npy'))
+            N_test = np.load(dir_.joinpath('N_test.npy'))
+            N_val = np.load(dir_.joinpath('N_val.npy'))
+            # N = np.concatenate((N_train,N_test,N_val), axis=0)
+            N = [N_train,N_test,N_val]
+            # print('size :',N_train.shape,N_test.shape, N_val.shape)
+            result = N
+            
+        if ('N' in locals()) and ('C' in locals()):
+            result[0] = np.hstack((C[0],N[0]))
+            result[1] = np.hstack((C[1],N[1]))
+            result[2] = np.hstack((C[2],N[2]))
+        #dropna
+        a = ~np.isnan(result[0]).any(axis=1)
+        result[0] = result[0][a]
+        y[0] = y[0][a]
+        a = ~np.isnan(result[1]).any(axis=1)
+        result[1] = result[1][a]
+        y[1] = y[1][a]
+        a = ~np.isnan(result[2]).any(axis=1)
+        result[2] = result[2][a]
+        y[2] = y[2][a]
+        if normalization:
+            mmx = MinMaxScaler()
+            result[0] = mmx.fit_transform(result[0])
+            result[2] = mmx.transform(result[2])
+
+            result[1] = mmx.transform(result[1])
+            
+            # result[0] = normalize(result[0], norm=norm)
+            # result[1] = normalize(result[1], norm=norm)
+            # result[2] = normalize(result[2], norm=norm)  # type: ignore[code]
+        if self.config['sampling'] < 1 :
+            print('Warning : Sampling being applied ! ')
+            idx = np.random.choice(range(result[0].shape[0]),int(result[0].shape[0]*self.config['sampling']), replace = False)
+            result[0] = result[0][idx]
+            y[0] = y[0][idx]
+        return result[0],result[1],result[2], y[0],y[1],y[2]
 
 

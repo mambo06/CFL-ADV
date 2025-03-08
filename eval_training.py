@@ -18,6 +18,8 @@ from utils.utils import set_dirs, run_with_profiler, update_config_with_model_di
 import numpy as np
 
 import torch
+import json
+from pathlib import Path
 
 
 # def train(config, data_loader, save_weights=True):
@@ -79,35 +81,17 @@ import torch
 
 
 
-# def main(config):
-#     """Main wrapper function for training routine.
-
-#     Args:
-#         config (dict): Dictionary containing options and arguments.
-
-#     """
-#     # Set directories (or create if they don't exist)
-#     set_dirs(config)
-#     # Get data loader for first dataset.
-#     ds_loader = Loader(config, dataset_name=config["dataset"])
-#     # Add the number of features in a dataset as the first dimension of the model
-#     config = update_config_with_model_dims(ds_loader, config)
-#     # Start training and save model weights at the end
-#     train(config, ds_loader, save_weights=True)
-
-
-if __name__ == "__main__":
-    # Get parser / command line arguments
-    args = get_arguments()
-    # Get configuration file
-    config = get_config(args)
-    # Overwrite the parent folder name for saving results
+def main(config):
     config["framework"] = config["dataset"]
+    config['task_type'] = json.loads(Path('data/'+config["dataset"]+'/info.json').read_text())['task_type']
+    config['cat_policy'] = json.loads(Path('data/'+config["dataset"]+'/info.json').read_text())['cat_policy']
+    config['norm'] = json.loads(Path('data/'+config["dataset"]+'/info.json').read_text())['norm']
+    config['learning_rate_reducer'] = config['learning_rate']
     # Get a copy of autoencoder dimensions
     dims = copy.deepcopy(config["dims"])
     # Summarize config and arguments on the screen as a sanity check
     # config["shuffle_list"] = [[] for i in range( config["fl_cluster"])] # ordered shuffle each client / federated cluster
-    print_config_summary(config, args)
+    print_config_summary(config)
     
     
     #----- Moving to evaluation stage
@@ -123,4 +107,13 @@ if __name__ == "__main__":
     for client in range(config["fl_cluster"]):
 
         eval.main(config, client)
+
+if __name__ == "__main__":
+    # Get parser / command line arguments
+    args = get_arguments()
+    # Get configuration file
+    config = get_config(args)
+    print_config_summary(args)
+    main(config,args)
+    
 

@@ -35,28 +35,28 @@ def eval(data_loader, config, client, nData):
     
     # Evaluate Autoencoder
     with th.no_grad():          
-        # if not config['local']:  
-        #     # evaluate original
-        #     print(f" Evaluate Original dataset")
-        #     # Get the joint embeddings and class labels of training set
-        #     # z_train, y_train = evalulate_original(data_loader, config, client, plot_suffix="training", mode="train")
+        if not config['local']:  
+            # evaluate original
+            print(f" Evaluate Original dataset")
+            # Get the joint embeddings and class labels of training set
+            # z_train, y_train = evalulate_original(data_loader, config, client, plot_suffix="training", mode="train")
             
-        #     if nData != None:
-        #         for item in nData:
-        #             # Train and evaluate logistig regression using the joint embeddings of training and test set
-        #             evalulate_original(data_loader, config, client, plot_suffix="test", mode="test", z_train=None, y_train=None, nData=item)
-        #     else :
-        #         evalulate_original(data_loader, config, client, plot_suffix="test", mode="test", z_train=None, y_train=None)
+            if nData != None:
+                for item in nData:
+                    # Train and evaluate logistig regression using the joint embeddings of training and test set
+                    evalulate_original(data_loader, config, client, plot_suffix="test", mode="test", z_train=None, y_train=None, nData=item)
+            else :
+                evalulate_original(data_loader, config, client, plot_suffix="test", mode="test", z_train=None, y_train=None)
 
 
-        #     # End of the run
-        #     print(f"Evaluation results are saved under ./results/{config['framework']}/evaluation/\n")
-        #     print(f"{100 * '='}\n")
+            # End of the run
+            print(f"Evaluation results are saved under ./results/{config['framework']}/evaluation/\n")
+            print(f"{100 * '='}\n")
 
-        #     # If mlflow==True, track results
-        #     if config["mlflow"]:
-        #         # Log model and results with mlflow
-        #         mlflow.log_artifacts(model._results_path + "/evaluation/" + "/clusters", "evaluation")
+            # If mlflow==True, track results
+            if config["mlflow"]:
+                # Log model and results with mlflow
+                mlflow.log_artifacts(model._results_path + "/evaluation/" + "/clusters", "evaluation")
 
         # if config['baseGlobal'] : sys.exit()
 

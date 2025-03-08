@@ -64,3 +64,4 @@ baseGlobal : false                # if true then all data generated for base sup
 # client_imbalance_rate : 0.25    # number of client having imlanace class (1 for nothing, 0 for all)
 # class_imbalance : 0.5           # number of class reduced in each clients (1 for nothing, 0 for all)
 local : false                   # FL local
+sampling : 1
