@@ -1,3 +1,4 @@
+---
 # Model type and architecture
 model_mode: ae                    # Model to use. ae: Autoencoder
 reconstruction: true              #
@@ -18,10 +19,10 @@ normalize: true                   # If True, we do L2 normalization on latent va
 p_norm: 2                         # p-value used for normalization. p=2 for L2 norm, p=1 for L1 norm and so on.
 
 # Parameters for training
-dropout_rate: 0.1                 # Set dropout rate if Dropout is being used
+dropout_rate: 0.2                 # Set dropout rate if Dropout is being used
 learning_rate: 0.001              # Learning rate for training
 # epochs: 5                        # Number of epochs to use for training
-batch_size: 512                    # Set batch size
+batch_size: 256                    # Set batch size
 nth_epoch: 1                      # Compute validation loss in every nth_epoch
 validate: false                   # Whether to compute validation loss
 scheduler: true                  # If True, turns on scheduler for learning rate.
@@ -35,9 +36,9 @@ aggregation: mean                 # options:  mean (default), sum, max, min, and
 
 # Noise-related options
 add_noise: true                   # If True, it adds noise. The noise type is defined in "noise_type"
-noise_type: gaussian_noise            # Type of noise to add to. Choices: swap_noise, gaussian_noise, zero_out
-masking_ratio: 0.5                # Percentage of the feature to add noise to
-noise_level: 0.0                  # Stdev defined for Gaussian noise
+noise_type: swap_noise            # Type of noise to add to. Choices: swap_noise, gaussian_noise, zero_out
+masking_ratio: 0.2                # Percentage of the feature to add noise to
+noise_level: 0.2                  # Stdev defined for Gaussian noise
 
 # Data
 n_classes: 10                     # Number of classes in the data 
@@ -54,7 +55,7 @@ reconstruct_subset: true         # If True, reconstructs subset of given input t
                                   # Else, it reconstructs the complete tabular data.
 
 # federated Cluster
-modeFL : true                    # federated learning syncronisation, if false then only local model trained
+modeFL : false                    # federated learning syncronisation, if false then only local model trained
 baseGlobal : false                # if true then all data generated for base supervised model
 # fl_cluster: 4                    # FL cluster
 # client_drop_rate : 0.25            # number of client having data drop (1 for nothing, 0 for all)
@@ -63,5 +64,9 @@ baseGlobal : false                # if true then all data generated for base sup
 
 # client_imbalance_rate : 0.25    # number of client having imlanace class (1 for nothing, 0 for all)
 # class_imbalance : 0.5           # number of class reduced in each clients (1 for nothing, 0 for all)
-local : false                   # FL local
-sampling : 1
+# local : false                   # FL local
+
+poisonClient : true
+poisonLevel : 0.2
+randomClient : true
+randomLevel : 0.8

@@ -6,7 +6,7 @@ import gc
 import mlflow
 import yaml
 
-import eval_training as eval
+import evaluation as eval
 from src.model import CFL
 from utils.arguments import get_arguments, get_config, print_config_summary
 from utils.load_data import Loader
@@ -23,93 +23,69 @@ import os
 
 import datetime
 from itertools import islice
+import random
 
 class Server:
     def __init__(self, model):
         self.global_model = model
+        self.global_dict = self.global_model.encoder.state_dict()
         
-    def aggregate_models(self, client_models):
-        # FedAvg aggregation
-        global_dict = self.global_model.encoder.state_dict()
+    def aggregate_models(self, client_models, rnd=False):
+        # random  = [random.randint(0, 1) if random else None]
         
-        for k in global_dict.keys():
-            global_dict[k] = torch.stack([client.get_model_params()[k].float() for client in client_models if client.tloss != None]).mean(0)
-            
-        self.global_model.encoder.load_state_dict(global_dict)
+        for k in self.global_dict.keys():
+            paramStack = [client.get_model_params()[k].float() for client in client_models]
+            # random by 50%
+            paramStack = random.sample(paramStack, int(len(client_models) * 0.8)) if rnd else paramStack
+            self.global_dict[k] = torch.stack(paramStack).mean(0)
         
     def distribute_model(self):
-        return copy.deepcopy(self.global_model.encoder)
+        return self.global_dict
 
 
 class Client:
     def __init__(self, model, dataloader, client_number):
         self.model = copy.deepcopy(model)
-        self.dataloader = dataloader
-        self.client_number = client_number
-        self.tloss = None
+        self.dataloader = copy.deepcopy(dataloader)
+        self.client_number = copy.deepcopy(client_number)
+        self.slice = islice(self.dataloader, 0, None)
+        # self.tloss = None
         
-    def train(self, batch_number):
-        model = self.model
-        train_loader = self.dataloader
-        client = self.client_number
-        i = batch_number
+    def train(self):
+        # model = self.model
+        # train_loader = self.dataloader
+        # client = self.client_number
+        # i = batch_number
 
         # syncFed = True
-        x,y = next(islice(train_loader, i, None))
+        x,y = next(iter(self.dataloader))
 
         # np.random.seed(epoch)
         idx = np.random.permutation(x.shape[0])
         x = x[idx]
         y = y[idx]
-
-        # skipping            
-        if (client < int(config["fl_cluster"] * config["client_drop_rate"])) and \
-            (i < int(total_batches * config["data_drop_rate"])) :
-            model.loss["tloss_o"].append(np.nan)
-            model.loss["tloss_b"].append(np.nan)
-            model.loss["closs_b"].append(np.nan)
-            model.loss["rloss_b"].append(np.nan)
-            model.loss["zloss_b"].append(np.nan)
-            self.tloss = None
-            return
-            # syncFed = False
         
-        ## class imbalance
-        if (
-            int(config["fl_cluster"] * config["client_drop_rate"]) <= 
-            client < 
-            ( 
-                int(config["fl_cluster"] * config["client_drop_rate"]) + int(config["fl_cluster"] * config["client_imbalance_rate"])
-                ) 
-            ) and (i < int(total_batches * config['class_imbalance']) ) : # cut half to make imbalance class
-            # print(x.shape,y)
-            np.random.seed(client)
-            classes = np.random.choice(config["n_classes"], 
-                config["n_classes"] - int(config["class_imbalance"] * config['n_classes']), 
-                replace = False )
+        self.model.optimizer_ae.zero_grad()
+        # if client ==1 :
+        #     print(x)
+        tloss, closs, rloss, zloss = self.model.fit(x)
 
-            x[np.in1d(y,classes)] = 0
-
-        # total_loss, contrastive_loss, recon_loss, zrecon_loss = [], [], [], []
-        model.optimizer_ae.zero_grad()
-
-        tloss, closs, rloss, zloss = model.fit(x)
-
-        model.loss["tloss_o"].append(tloss.item())
-        model.loss["tloss_b"].append(tloss.item())
-        model.loss["closs_b"].append(closs.item())
-        model.loss["rloss_b"].append(rloss.item())
-        model.loss["zloss_b"].append(zloss.item())
+        self.model.loss["tloss_o"].append(tloss.item())
+        self.model.loss["tloss_b"].append(tloss.item())
+        self.model.loss["closs_b"].append(closs.item())
+        self.model.loss["rloss_b"].append(rloss.item())
+        self.model.loss["zloss_b"].append(zloss.item())
 
         # epoch_loss += tloss.item()
         tloss.backward()
+        # self.model.optimizer_ae.step()
         self.tloss = tloss
         return tloss
     
-    def poison_model(self):
+    def poison_model(self, scale=10):
         # Scale up the weights significantly to affect the global model
-        for param in self.model.parameters():
-            param.data = param.data * 10  # Scaling attack
+        for param in self.model.encoder.parameters():
+            param.data = param.data * scale  # Scaling attack
     
     def get_model_params(self):
         return copy.deepcopy(self.model.encoder.state_dict())
@@ -117,10 +93,13 @@ class Client:
     def step(self):
         self.model.optimizer_ae.step()
 
+    def set_model(self, params):
+        self.model.encoder.load_state_dict(params)
 
-def run(config, save_weights):
-    set_dirs(config)
-    set_seed(config)
+
+def run(config, save_weights, poison=False):
+    # set_dirs(config)
+    # set_seed(config)
     # Get data loader for first dataset.
     ds_loader = Loader(config, dataset_name=config["dataset"], client = 0)
     # Add the number of features in a dataset as the first dimension of the model
@@ -128,24 +107,30 @@ def run(config, save_weights):
     global_model = CFL(config)
     server = Server(global_model)
     clients = []
-    for client in range(config["fl_cluster"]):
-        loader = Loader(config, dataset_name=config["dataset"], client = client).trainFL_loader
-        client = Client(global_model, loader, client)
+    poisonClients = random.sample(range(config["fl_cluster"]), int(config["fl_cluster"] * config['randomLevel'])) if poison else [None]
+    print('Warning posining applied to client :', poisonClients)
+    for clt in range(config["fl_cluster"]):
+        loader = Loader(config, dataset_name=config["dataset"], client = clt).trainFL_loader
+        client = Client(global_model, loader, clt)
+        client.poison = True if clt in poisonClients else False
         clients.append(client)
 
     total_batches = len(loader)
     for epoch in range(config["epochs"]):
+        tloss = 0
         for i in tqdm(range(total_batches)):
-            for client in clients:
-                client.train(i)
+            for n, client in enumerate(clients):
+                tloss += client.train().item()
+                _ = client.poison_model(config['poisonLevel']) if client.poison else None
+                # client.step()
             
-            server.aggregate_models(clients)
+            server.aggregate_models(clients, rnd=config['randomClient'])
 
             for client in clients:
-                model = client.model
-                model.encoder = server.distribute_model()
-                client.step()
-                model.loss["tloss_e"].append(sum(model.loss["tloss_b"][-total_batches:-1]) / total_batches)
+                client.set_model(server.distribute_model())
+                client.step() 
+                client.model.loss["tloss_e"].append(sum(client.model.loss["tloss_b"][-total_batches:-1]) / total_batches)
+        print('epochs loss : ', str(tloss/(config['fl_cluster']*total_batches)))
 
     for n,client in enumerate(clients):
         model = client.model
@@ -177,7 +162,7 @@ def main(config):
     # Get a copy of autoencoder dimensions
     dims = copy.deepcopy(config["dims"])
     cfg = copy.deepcopy(config)
-    run(config,save_weights=True)
+    run(config,save_weights=True, poison = config['poisonClient'])
     eval.main(copy.deepcopy(cfg))
         
 

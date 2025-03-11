@@ -174,10 +174,6 @@ class TabularDataset(Dataset):
 
         elif self.dataset_name.lower() in ["covtype"]:
             x_train, y_train, x_test, y_test = self._load_covtype()
-        elif self.dataset_name.lower() in ["tuandromd"]:
-            x_train, y_train, x_test, y_test = self._load_tuandromd()
-        elif self.dataset_name.lower() in ["sensorless"]:
-            x_train, y_train, x_test, y_test = self._load_sensorless()
 
         else:
             print(f"Given dataset name is not found. Check for typos, or missing condition "
@@ -195,7 +191,7 @@ class TabularDataset(Dataset):
             exit()
 
         #shuffle and cut data
-        np.random.seed(self.config['random']) # make sure similar permutation accros client test and validate
+        np.random.seed(0) # make sure similar permutation accros client test and validate
         data = x_train
         featShuffle = np.random.permutation(data.shape[1])
         min_lim = int(data.shape[1]/self.config['fl_cluster'] * self.client) 
@@ -477,37 +473,6 @@ class TabularDataset(Dataset):
         X=normalize(cov_type.data, norm="l1")
         y=cov_type.target
         x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
-        return x_train, y_train, x_test, y_test
-    def _load_tuandromd(self):
-        data = pd.read_csv('data/TUANDROMD/TUANDROMD.csv')
-        data = data.dropna(how='any',axis=0)
-        data = data.values
-        X = data[:,:-2]
-        X=normalize(X, norm="l1")
-        y = data[:,-1]
-
-        inx = np.arange(X.shape[1])
-        np.random.shuffle(inx)
-        X = X[:,inx]
-       
-        x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.01, random_state=1)
-       
-        return x_train, y_train, x_test, y_test
-
-    def _load_sensorless(self):
-        data = np.loadtxt('data/SensorlessDriveDiagnosis/Sensorless_drive_diagnosis.txt')
-        X = data[:,:-1]
-        X=normalize(X, norm="l1")
-        y = data[:,-1]
-
-        np.random.seed(5)
-        inx = np.arange(X.shape[1])
-        np.random.shuffle(inx)
-
-        X = X[:,inx]
-       
-        x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.01, random_state=1)
-       
         return x_train, y_train, x_test, y_test
 
     def rgbToGrey(self,rgb):

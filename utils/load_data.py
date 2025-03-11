@@ -148,19 +148,19 @@ class TabularDataset(Dataset):
         # dirs = []
         dataset_name = self.config['dataset']
 
-        dir_ = 'data/'+ dataset_name 
+        dir_ = 'data/'+ dataset_name + '/normal' 
         if self.config['dataset'] in dirs : # if from other paper, datra not normalized
             N_train, N_test,N_val, y_train, y_test,y_val = self.joinData(cat_policy=self.config['cat_policy'],normalization=True, norm=self.config['norm'])
            
         else : # else data has been normalized
 
-            N_train = np.load('data/'+dataset_name+'/N_train.npy')
-            N_test = np.load('data/'+dataset_name+'/N_test.npy')
-            N_val = np.load('data/'+dataset_name+'/N_val.npy')
+            N_train = np.load('data/'+dataset_name + '/normal'+'/N_train.npy')
+            N_test = np.load('data/'+dataset_name + '/normal'+'/N_test.npy')
+            N_val = np.load('data/'+dataset_name + '/normal'+'/N_val.npy')
 
-            y_train = np.load('data/'+dataset_name+'/y_train.npy')
-            y_test = np.load('data/'+dataset_name+'/y_test.npy')
-            y_val = np.load('data/'+dataset_name+'/y_val.npy')
+            y_train = np.load('data/'+dataset_name + '/normal'+'/y_train.npy')
+            y_test = np.load('data/'+dataset_name + '/normal'+'/y_test.npy')
+            y_val = np.load('data/'+dataset_name + '/normal'+'/y_val.npy')
 
         x_train, y_train  = N_train[:,:-(N_train.shape[1] % self.config['fl_cluster'])], y_train, 
         x_test, y_test, = N_test[:,:-(N_train.shape[1] % self.config['fl_cluster'])], y_test, 
@@ -273,7 +273,7 @@ class TabularDataset(Dataset):
 
     def joinData(self, cat_policy='ohe',seed=int(9),normalization=False, norm="l1"):
         dataset_name = self.config['dataset']
-        dir_ = Path('data/'+ dataset_name + '/normal')
+        dir_ = Path('data/'+ dataset_name + '/normal' )
         y_train = np.load(dir_.joinpath('y_train.npy'))
         y_test = np.load(dir_.joinpath('y_test.npy'))
         y_val = np.load(dir_.joinpath('y_val.npy'))

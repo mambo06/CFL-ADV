@@ -1,4 +1,9 @@
+"""
+Author: Talip Ucar
+email: ucabtuc@gmail.com
 
+Description: Utility functions.
+"""
 
 import cProfile
 import os
@@ -120,10 +125,7 @@ def get_runtime_and_model_config_with_dataset_name(dataset):
 def update_config_with_model_dims(data_loader, config):
     """Updates options by adding the dimension of input features as the dimension of first hidden layer of the model"""
     # Get the first batch (data is in dictionary format)
-    try:
-        x, y = next(iter(data_loader.trainFl_loader))
-    except:
-        x, y = next(iter(data_loader.trainFL_loader))
+    x, y = next(iter(data_loader.trainFL_loader))
     # Get the features and turn them into numpy.
     xi = x.cpu().numpy()
     # Get the number of features
