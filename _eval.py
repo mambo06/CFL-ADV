@@ -35,7 +35,7 @@ def eval(data_loader, config, client, nData):
     
     # Evaluate Autoencoder
     with th.no_grad():          
-        if not config['local']:  
+        if not config['flOnly']:  
             # evaluate original
             print(f" Evaluate Original dataset")
             # Get the joint embeddings and class labels of training set
@@ -58,7 +58,7 @@ def eval(data_loader, config, client, nData):
                 # Log model and results with mlflow
                 mlflow.log_artifacts(model._results_path + "/evaluation/" + "/clusters", "evaluation")
 
-        if config['baseGlobal'] : sys.exit()
+        # if config['baseGlobal'] : sys.exit()
 
         print(f" Evaluate embeddings dataset")
         # Get the joint embeddings and class labels of training set

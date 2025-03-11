@@ -30,13 +30,13 @@ class Server:
         self.global_model = model
         self.global_dict = self.global_model.encoder.state_dict()
         
-    def aggregate_models(self, client_models, rnd=False):
+    def aggregate_models(self, client_models, rnd):
         # random  = [random.randint(0, 1) if random else None]
         
         for k in self.global_dict.keys():
             paramStack = [client.get_model_params()[k].float() for client in client_models]
             # random by 50%
-            paramStack = random.sample(paramStack, int(len(client_models) * 0.8)) if rnd else paramStack
+            paramStack = random.sample(paramStack, int(len(client_models) * config['randomLevel'])) if rnd else paramStack
             self.global_dict[k] = torch.stack(paramStack).mean(0)
         
     def distribute_model(self):
@@ -82,7 +82,7 @@ class Client:
         self.tloss = tloss
         return tloss
     
-    def poison_model(self, scale=10):
+    def poison_model(self, scale):
         # Scale up the weights significantly to affect the global model
         for param in self.model.encoder.parameters():
             param.data = param.data * scale  # Scaling attack
@@ -97,7 +97,7 @@ class Client:
         self.model.encoder.load_state_dict(params)
 
 
-def run(config, save_weights, poison=False):
+def run(config, save_weights, poison):
     # set_dirs(config)
     # set_seed(config)
     # Get data loader for first dataset.
@@ -107,7 +107,7 @@ def run(config, save_weights, poison=False):
     global_model = CFL(config)
     server = Server(global_model)
     clients = []
-    poisonClients = random.sample(range(config["fl_cluster"]), int(config["fl_cluster"] * config['randomLevel'])) if poison else [None]
+    poisonClients = random.sample(range(config["fl_cluster"]), int(config["fl_cluster"] * config['poisonClient'])) if poison else [None]
     print('Warning posining applied to client :', poisonClients)
     for clt in range(config["fl_cluster"]):
         loader = Loader(config, dataset_name=config["dataset"], client = clt).trainFL_loader
@@ -121,8 +121,8 @@ def run(config, save_weights, poison=False):
         for i in tqdm(range(total_batches)):
             for n, client in enumerate(clients):
                 tloss += client.train().item()
-                _ = client.poison_model(config['poisonLevel']) if client.poison else None
                 # client.step()
+                _ = client.poison_model(config['poisonLevel']) if client.poison else None
             
             server.aggregate_models(clients, rnd=config['randomClient'])
 
@@ -162,7 +162,7 @@ def main(config):
     # Get a copy of autoencoder dimensions
     dims = copy.deepcopy(config["dims"])
     cfg = copy.deepcopy(config)
-    run(config,save_weights=True, poison = config['poisonClient'])
+    run(config,save_weights=True, poison = config['poison'])
     eval.main(copy.deepcopy(cfg))
         
 
