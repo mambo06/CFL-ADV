@@ -18,6 +18,8 @@ from utils.utils import set_dirs, run_with_profiler, update_config_with_model_di
 import numpy as np
 
 import torch
+from pathlib import Path
+import json
 
 
 def main(config):
@@ -49,6 +51,11 @@ if __name__ == "__main__":
     #----- Moving to evaluation stage
     # Reset the autoencoder dimension since it was changed in train.py
     config["dims"] = dims
+    config["framework"] = config["dataset"]
+    config['task_type'] = json.loads(Path('data/'+config["dataset"]+'/info.json').read_text())['task_type']
+    config['cat_policy'] = json.loads(Path('data/'+config["dataset"]+'/info.json').read_text())['cat_policy']
+    config['norm'] = json.loads(Path('data/'+config["dataset"]+'/info.json').read_text())['norm']
+    config['learning_rate_reducer'] = config['learning_rate']
     print_config_summary(config, args)
     main(config)
     

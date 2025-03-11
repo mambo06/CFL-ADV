@@ -36,13 +36,9 @@ def linear_model_eval(config, z_train, y_train, suffix , z_test=None, y_test=Non
     # Print out a useful description
     print(10 * ">" + description)
 
-    prefix = str(suffix) + str(config['epochs']) + "e-" + str(config["fl_cluster"]) + "c-"  \
-        + str(config["client_drop_rate"]) + "cd-" + str(config["data_drop_rate"])\
-        + "dd-" + str(config["client_imbalance_rate"]) + "nc-" + str(config["class_imbalance"]) \
-        + "ci-" + str(config["dataset"]) + "-" 
-
-    if config["local"] : prefix += "local"
-    else : prefix += "FL"
+    prefix = str(suffix) + str(config['epochs']) + "e-" + str(config["fl_cluster"]) + "fl-"  \
+        + str(config["poisonClient"]) + "pc-" + str(config["poisonLevel"]) + "pl-"  \
+        + str(config["randomLevel"]) + "rl-" + str(config["dataset"])
 
     file_name = prefix
     
@@ -57,7 +53,7 @@ def linear_model_eval(config, z_train, y_train, suffix , z_test=None, y_test=Non
         # Initialize Logistic regression
         print(10 * "*" + "C=" + str(c) + 10 * "*")
         clf = LogisticRegression(max_iter=1200, solver='lbfgs', C=c, multi_class='multinomial')
-        #clf = RandomForestClassifier()
+        clf = RandomForestClassifier()
         # clf = SVC()
         # Fit model to the data
         clf.fit(z_train, y_train)

@@ -141,12 +141,9 @@ def run(config, save_weights, poison):
         _ = model.save_weights(n) if save_weights else None
 
         # Save the config file to keep a record of the settings
-        prefix = "Client-" + str(n) + "-" + str(config['epochs']) + "e-" + str(config["fl_cluster"]) + "c-"  \
-        + str(config["client_drop_rate"]) + "cd-" + str(config["data_drop_rate"])\
-        + "dd-" + str(config["client_imbalance_rate"]) + "nc-" + str(config["class_imbalance"]) \
-        + "ci-" + str(config["dataset"]) + "-"
-        if config["local"] : prefix += "local"
-        else : prefix += "FL"
+        prefix = "Client-" + str(client) + "-" + str(config['epochs']) + "e-" + str(config["fl_cluster"]) + "fl-"  \
+        + str(config["poisonClient"]) + "pc-" + str(config["poisonLevel"]) +  "pl-" \
+        + str(config["randomLevel"]) + "rl-" + str(config["dataset"]) 
 
         with open(model._results_path + "/config_"+ prefix +".yml", 'w') as config_file:
             yaml.dump(config, config_file, default_flow_style=False)

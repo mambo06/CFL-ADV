@@ -49,11 +49,10 @@ def get_arguments():
     parser.add_argument("-lc", "--local", dest='local', action='store_true')
     parser.add_argument("-e", "--epoch", type=int, default=5,)
     parser.add_argument("-c", "--client", type=int, default=4, )
-    parser.add_argument("-cd", "--clientdrop", type=float, default=0, )
-    parser.add_argument("-dd", "--datadrop", type=float, default=0, )
-    parser.add_argument("-nc", "--noniidclient", type=float, default=0, )
-    parser.add_argument("-ci", "--classimbalance", type=float, default=0,)
-    parser.add_argument("-b", "--baseGlobal", dest='baseGlobal', action='store_true')
+    parser.add_argument("-pl", "--poisonLevel", type=float, default=1, )
+    parser.add_argument("-pc", "--poisonClient", type=float, default=0, )
+    parser.add_argument("-rl", "--randomLevel", type=float, default=1, )
+    parser.add_argument("-s", "--sampling", type=float, default=1, )
     
     # Return parser arguments
     return parser.parse_args()
@@ -78,11 +77,10 @@ def get_config(args):
     config['local'] = args.local
     config['epochs'] = args.epoch
     config['fl_cluster'] = args.client
-    config['client_drop_rate'] = args.clientdrop
-    config['data_drop_rate'] = args.datadrop
-    config['client_imbalance_rate'] = args.noniidclient
-    config['class_imbalance'] = args.classimbalance
-    config['baseGlobal'] = args.baseGlobal
+    config['poisonLevel'] = args.poisonLevel
+    config['poisonClient'] = args.poisonClient
+    config['randomLevel'] = args.randomLevel
+    config['sampling'] = args.sampling
 
     # config["device"] = th.device('cuda:' + args.device_number if th.cuda.is_available() and args.gpu else 'cpu')
     # Return

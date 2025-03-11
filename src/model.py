@@ -163,12 +163,9 @@ class CFL:
 
     def saveTrainParams(self, client):
         config = self.options
-        prefix = "Client-" + str(client) + "-" + str(config['epochs']) + "e-" + str(config["fl_cluster"]) + "c-"  \
-        + str(config["client_drop_rate"]) + "cd-" + str(config["data_drop_rate"])\
-        + "dd-" + str(config["client_imbalance_rate"]) + "nc-" + str(config["class_imbalance"]) \
-        + "ci-" + str(config["dataset"]) + "-"
-        if config["local"] : prefix += "local"
-        else : prefix += "FL"
+        prefix = "Client-" + str(client) + "-" + str(config['epochs']) + "e-" + str(config["fl_cluster"]) + "fl-"  \
+        + str(config["poisonClient"]) + "pc-" + str(config["poisonLevel"]) +  "pl-" \
+        + str(config["randomLevel"]) + "rl-" + str(config["dataset"])
 
 
         # Save plot of training and validation losses
@@ -556,13 +553,9 @@ class CFL:
     def save_weights(self,client):
         config = self.options
 
-        prefix = "Client-" + str(client) + "-" + str(config['epochs']) + "e-" + str(config["fl_cluster"]) + "c-"  \
-        + str(config["client_drop_rate"]) + "cd-" + str(config["data_drop_rate"])\
-        + "dd-" + str(config["client_imbalance_rate"]) + "nc-" + str(config["class_imbalance"]) \
-        + "ci-" + str(config["dataset"]) + "-" 
-
-        if config["local"] : prefix += "local"
-        else : prefix += "FL"
+        prefix = "Client-" + str(client) + "-" + str(config['epochs']) + "e-" + str(config["fl_cluster"]) + "fl-"  \
+        + str(config["poisonClient"]) + "pc-" + str(config["poisonLevel"]) +  "pl-" \
+        + str(config["randomLevel"]) + "rl-" + str(config["dataset"])
 
         """Used to save weights."""
         for model_name in self.model_dict:
@@ -572,12 +565,9 @@ class CFL:
     def load_models(self,client):
         config = self.options
 
-        prefix = "Client-" + str(client) + "-" + str(config['epochs']) + "e-" + str(config["fl_cluster"]) + "c-"  \
-        + str(config["client_drop_rate"]) + "cd-" + str(config["data_drop_rate"])\
-        + "dd-" + str(config["client_imbalance_rate"]) + "nc-" + str(config["class_imbalance"]) \
-        + "ci-" + str(config["dataset"]) + "-" 
-        if config["local"] : prefix += "local"
-        else : prefix += "FL"
+        prefix = "Client-" + str(client) + "-" + str(config['epochs']) + "e-" + str(config["fl_cluster"]) + "fl-"  \
+        + str(config["poisonClient"]) + "pc-" + str(config["poisonLevel"]) +  "pl-" \
+        + str(config["randomLevel"]) + "rl-" + str(config["dataset"])
 
         """Used to load weights saved at the end of the training."""
         for model_name in self.model_dict:

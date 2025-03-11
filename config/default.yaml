@@ -8,8 +8,8 @@ shallow_architecture: true        # If True, we use shallow encoder/decoder arch
 # Architecture-related params
 # The dimension of input features is added automatically, so it does not need to be defined here.
 dims:                             # Autoencoder architecture - This is for Encoder - Decoder is symmetric to Encoder.
-  - 256                           # Hidden. 
-  - 256
+  - 26                           # Hidden. 
+  - 26
 
 isBatchNorm: true                # Set True to use BatchNorm layer
 isDropout: true                  # Set True to use Dropout layer
@@ -64,10 +64,10 @@ baseGlobal : false                # if true then all data generated for base sup
 
 # client_imbalance_rate : 0.25    # number of client having imlanace class (1 for nothing, 0 for all)
 # class_imbalance : 0.5           # number of class reduced in each clients (1 for nothing, 0 for all)
-flOnly : true                   # FL local
+flOnly : false                   # FL local
 
 poison : true
-poisonLevel : 0.1 # level poison scalling
-poisonClient : 0.2 # number of client posoned of total FL clients
+# poisonLevel : 0.1 # level poison scalling
+# poisonClient : 0.2 # number of client posoned of total FL clients
 randomClient : true
-randomLevel : 0.8
+# randomLevel : 0.8
