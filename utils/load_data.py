@@ -298,7 +298,7 @@ class TabularDataset(Dataset):
                 C = C
             elif cat_policy == 'ohe':
                 ohe = OneHotEncoder(
-                    handle_unknown='ignore', sparse=False, dtype='float32'  # type: ignore[code]
+                    handle_unknown='ignore', sparse_output=False, dtype='float32'  # type: ignore[code]
                 )
                 ohe.fit(C[0])
                 C[0] = ohe.transform(C[0])

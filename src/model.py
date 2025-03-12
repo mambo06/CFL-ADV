@@ -49,7 +49,7 @@ class CFL:
         # self.is_combination = True # set this to true cause z loss 0 ! code realted
         # ------Network---------
         # Instantiate networks
-        print("Building the models for training and evaluation in SubTab framework...")
+        print("Building the models for training and evaluation in CFL framework...")
         # Set Autoencoders i.e. setting loss, optimizer, and device assignment (GPU, or CPU)
         self.set_autoencoder()
         # Set scheduler (its use is optional)

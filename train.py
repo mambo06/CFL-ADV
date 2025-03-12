@@ -58,12 +58,12 @@ class Client:
         # i = batch_number
 
         # syncFed = True
-        x,y = next(iter(self.dataloader))
+        x,_ = next(iter(self.dataloader))
 
         # np.random.seed(epoch)
         idx = np.random.permutation(x.shape[0])
         x = x[idx]
-        y = y[idx]
+        # y = y[idx]
         
         self.model.optimizer_ae.zero_grad()
         # if client ==1 :
@@ -121,16 +121,16 @@ def run(config, save_weights, poison):
         for i in tqdm(range(total_batches)):
             for n, client in enumerate(clients):
                 tloss += client.train().item()
-                # client.step()
+                client.step()
                 _ = client.poison_model(config['poisonLevel']) if client.poison else None
             
             server.aggregate_models(clients, rnd=config['randomClient'])
 
             for client in clients:
                 client.set_model(server.distribute_model())
-                client.step() 
+                # client.step() 
                 client.model.loss["tloss_e"].append(sum(client.model.loss["tloss_b"][-total_batches:-1]) / total_batches)
-        print('epochs loss : ', str(tloss/(config['fl_cluster']*total_batches)))
+        print('epochs ', epoch,'loss : ', str(tloss/(config['fl_cluster']*total_batches)))
 
     for n,client in enumerate(clients):
         model = client.model

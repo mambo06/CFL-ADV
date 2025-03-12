@@ -79,8 +79,9 @@ def make_dir(directory_path, new_folder_name):
 
 def get_runtime_and_model_config(args):
     """Returns runtime and model/dataset specific config file"""
+    fileDefault = "./config/runtime.yaml"
     try:
-        with open("./config/runtime.yaml", "r") as file:
+        with open(fileDefault, "r") as file:
             config = yaml.safe_load(file)
     except Exception as e:
         sys.exit("Error reading runtime config file")
@@ -96,9 +97,11 @@ def get_runtime_and_model_config(args):
 def update_config_with_model(config):
     """Updates options with given configuration for a particular model"""
     model_config = config["model_config"]
+    fileDefault = "./config/"+config['dataset']+".yaml" if os.path.isfile("./config/runtime.yaml") else "./config/runtime.yaml"
+    print('Config Used :',fileDefault)
     try:
         # with open("./config/" + model_config + ".yaml", "r") as file:
-        with open("./config/default.yaml", "r") as file:
+        with open(fileDefault, "r") as file:
             model_config = yaml.safe_load(file)
     except Exception as e:
         sys.exit("Error reading model config file")
