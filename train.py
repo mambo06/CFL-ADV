@@ -121,14 +121,14 @@ def run(config, save_weights, poison):
         for i in tqdm(range(total_batches)):
             for n, client in enumerate(clients):
                 tloss += client.train().item()
-                client.step()
+                # client.step()
                 _ = client.poison_model(config['poisonLevel']) if client.poison else None
             
             server.aggregate_models(clients, rnd=config['randomClient'])
 
             for client in clients:
                 client.set_model(server.distribute_model())
-                # client.step() 
+                client.step() 
                 client.model.loss["tloss_e"].append(sum(client.model.loss["tloss_b"][-total_batches:-1]) / total_batches)
         print('epochs ', epoch,'loss : ', str(tloss/(config['fl_cluster']*total_batches)))
 

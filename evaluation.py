@@ -32,9 +32,12 @@ def main(config):
     # Get all of available training set for evaluation (i.e. no need for validation set)
     # config["training_data_ratio"] = 0.1
 
+    rst = []
     for client in range(config["fl_cluster"]):
 
-        eval.main(config, client)
+        results = eval.main(config, client)
+        rst.append(results[0]['test_acc'][2])
+    print('Mean results :',np.mean(rst))
 
 
 if __name__ == "__main__":

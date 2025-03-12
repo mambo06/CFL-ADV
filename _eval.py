@@ -69,7 +69,7 @@ def eval(data_loader, config, client, nData):
                 # Train and evaluate logistig regression using the joint embeddings of training and test set
                 evalulate_models(data_loader, model, config, client, plot_suffix="test", mode="test", z_train=None, y_train=None, nData=item)
         else:
-            evalulate_models(data_loader, model, config, client, plot_suffix="test", mode="test", z_train=None, y_train=None)
+            results = evalulate_models(data_loader, model, config, client, plot_suffix="test", mode="test", z_train=None, y_train=None)
 
         
         # End of the run
@@ -80,6 +80,7 @@ def eval(data_loader, config, client, nData):
         if config["mlflow"]:
             # Log model and results with mlflow
             mlflow.log_artifacts(model._results_path + "/evaluation/" + "/clusters", "evaluation")
+        return results
 
 
 def evalulate_models(data_loader, model, config, client, plot_suffix="_Test", mode='train', z_train=None, y_train=None, nData=None):
@@ -177,7 +178,7 @@ def evalulate_models(data_loader, model, config, client, plot_suffix="_Test", mo
         if (nData != None):
             suffix = "-Dataset-" + str(nData)
 
-        linear_model_eval(config, z_train, y_train,"Client-" + str(client) + suffix + "-contrastive-", z_test=z, y_test=clabels, description=description, nData=nData)# linear_model_eval(config, z, clabels,"Client-" + str(client) + "-contrastive-", z_test=z_train, y_test=y_train, description=description)
+        return linear_model_eval(config, z_train, y_train,"Client-" + str(client) + suffix + "-contrastive-", z_test=z, y_test=clabels, description=description, nData=nData)# linear_model_eval(config, z, clabels,"Client-" + str(client) + "-contrastive-", z_test=z_train, y_test=y_train, description=description)
 
     else:
         # Return z_train = z, and y_train = clabels
@@ -251,7 +252,7 @@ def main(config,client=1, nData=None):
     # Add the number of features in a dataset as the first dimension of the model
     config = update_config_with_model_dims(ds_loader, config)
     # Start evaluation
-    eval(ds_loader, config, client, nData)
+    return eval(ds_loader, config, client, nData)
 
 
 if __name__ == "__main__":

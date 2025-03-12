@@ -53,7 +53,7 @@ def linear_model_eval(config, z_train, y_train, suffix , z_test=None, y_test=Non
         # Initialize Logistic regression
         print(10 * "*" + "C=" + str(c) + 10 * "*")
         clf = LogisticRegression(max_iter=1200, solver='lbfgs', C=c, multi_class='multinomial')
-        clf = RandomForestClassifier()
+        #clf = RandomForestClassifier()
         # clf = SVC()
         # Fit model to the data
         clf.fit(z_train, y_train)
@@ -93,6 +93,7 @@ def linear_model_eval(config, z_train, y_train, suffix , z_test=None, y_test=Non
         dict_writer.writerows(results_list)
         print(f"{100 * '='}\n")
         print(f"Classification results are saved at: {file_path}")
+    return results_list
 
 
 def plot_clusters(config, z, clabels, suffix , plot_suffix="_inLatentSpace"):
