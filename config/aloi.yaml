@@ -57,13 +57,17 @@ tau: 0.1                          # Temperature parameter used in NTXentLoss
 cosine_similarity: false          # If True, use cosine similarity in NTXentLoss. Else, use dot product.
 reconstruct_subset: true         # If True, reconstructs subset of given input to encoder. 
                                   # Else, it reconstructs the complete tabular data.
+# federated Cluster
+modeFL : false                    # federated learning syncronisation, if false then only local model trained
+baseGlobal : false                # if true then all data generated for base supervised model
+# fl_cluster: 4                    # FL cluster
+# client_drop_rate : 0.25            # number of client having data drop (1 for nothing, 0 for all)
+# data_drop_rate : 0.9             # number of data droped in cleints (1 for nothing, 0 for all)
 
-ns : false                        # no pearson shuffle. if true no pearson shuffle applied to the loaded data
-local : false
 
-# k nearest c = 95
-colsample_bytree: 0.5
-memoryNumber: 500
+# client_imbalance_rate : 0.25    # number of client having imlanace class (1 for nothing, 0 for all)
+# class_imbalance : 0.5           # number of class reduced in each clients (1 for nothing, 0 for all)
+flOnly : true                   # FL local
 
 poison : true
 # poisonLevel : 0.1 # level poison scalling
