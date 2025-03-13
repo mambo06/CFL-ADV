@@ -53,3 +53,8 @@ tau: 0.1                          # Temperature parameter used in NTXentLoss
 cosine_similarity: false          # If True, use cosine similarity in NTXentLoss. Else, use dot product.
 reconstruct_subset: false         # If True, reconstructs subset of given input to encoder. 
                                   # Else, it reconstructs the complete tabular data.
+poison : true
+# poisonLevel : 0.1 # level poison scalling
+# poisonClient : 0.2 # number of client posoned of total FL clients
+randomClient : true
+# randomLevel : 0.8

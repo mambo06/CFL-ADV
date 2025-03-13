@@ -64,3 +64,9 @@ local : false
 # k nearest c = 95
 colsample_bytree: 0.5
 memoryNumber: 500
+
+poison : true
+# poisonLevel : 0.1 # level poison scalling
+# poisonClient : 0.2 # number of client posoned of total FL clients
+randomClient : true
+# randomLevel : 0.8
