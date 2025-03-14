@@ -1,12 +1,12 @@
 dirs = [
-             'adult',
+             # 'adult',
              'aloi',
              # 'california_housing',
-             'covtype',
+             # 'covtype',
              'epsilon',
-             'helena',
-             'higgs_small',
-             'jannis',
+             # 'helena',
+             # 'higgs_small',
+             # 'jannis',
              # 'microsoft',
              # 'yahoo',
              # 'year'
