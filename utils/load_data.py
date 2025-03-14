@@ -162,9 +162,12 @@ class TabularDataset(Dataset):
             y_test = np.load('data/'+dataset_name + '/normal'+'/y_test.npy')
             y_val = np.load('data/'+dataset_name + '/normal'+'/y_val.npy')
 
-        x_train, y_train  = N_train[:,:-(N_train.shape[1] % self.config['fl_cluster'])], y_train, 
-        x_test, y_test, = N_test[:,:-(N_train.shape[1] % self.config['fl_cluster'])], y_test, 
-        x_val, y_val = N_val[:,:-(N_train.shape[1] % self.config['fl_cluster'])], y_val
+        
+        trimIndex = -(N_train.shape[1] % self.config['fl_cluster']) if (N_train.shape[1] % self.config['fl_cluster']) != 0 else N_train.shape[1] 
+
+        x_train, y_train  = N_train[:,:trimIndex], y_train, 
+        x_test, y_test, = N_test[:,:trimIndex], y_test, 
+        x_val, y_val = N_val[:,:trimIndex], y_val
         
         x_train = np.vstack((x_train, x_val))
         y_train = np.hstack((y_train, y_val))
