@@ -5,7 +5,7 @@ import gc
 import itertools
 import os
 
-import numpy as np
+# import numpy as np
 import pandas as pd
 import torch as th
 # from tqdm import tqdm
@@ -15,7 +15,11 @@ from utils.model_plot import save_loss_plot
 from utils.model_utils import AEWrapper
 from utils.utils import set_seed, set_dirs
 
+from torch.amp import autocast
+
 th.autograd.set_detect_anomaly(True)
+
+
 
 import random
 
@@ -60,6 +64,7 @@ class CFL:
                      "closs_b": [], "rloss_b": [], "zloss_b": [],
                      "tloss_o": []}
         self.train_tqdm = None
+        # self.scaler = GradScaler()
 
     def get_loss(self):
         return self.loss
@@ -70,7 +75,8 @@ class CFL:
     def set_autoencoder(self):
         """Sets up the autoencoder model, optimizer, and loss"""
         # Instantiate the model for the text Autoencoder
-        self.encoder = AEWrapper(self.options)
+        # self.encoder = AEWrapper(self.options)
+        self.encoder = th.compile(AEWrapper(self.options)) #optime CPU intel/amd only
         # Add the model and its name to a list to save, and load in the future
         self.model_dict.update({"encoder": self.encoder})
         # Assign autoencoder to a device
@@ -86,34 +92,9 @@ class CFL:
 
     def fit(self, data_loader):
         x = data_loader
+        x = x.to(self.device)  
         self.set_mode(mode="training") 
-        """Fits model to the data"""
 
-        # Get data loaders
-        # train_loader = data_loader.train_loader
-        # validation_loader = data_loader.validation_loader
-
-        # Placeholders to record losses per batch
-        # self.loss = {"tloss_b": [], "tloss_e": [], "vloss_e": [],
-        #              "closs_b": [], "rloss_b": [], "zloss_b": []}
-
-        # Turn on training mode for the model.
-        # self.set_mode(mode="training")
-
-        # Compute total number of batches per epoch
-        # self.total_batches = len(train_loader)
-
-        # Start joint training of Autoencoder with Projection network
-        # for epoch in range(self.options["epochs"]):
-            # Attach progress bar to data_loader to check it during training. "leave=True" gives a new line per epoch
-            # self.train_tqdm = tqdm(enumerate(train_loader), total=self.total_batches, leave=True)
-
-            # Go through batches
-            # for i, (x, _) in self.train_tqdm:
-                # print(x.shape) = [32, 784]
-
-                #  Concatenate original data with itself to be used when computing reconstruction error 
-                #  w.r.t reconstructions from subsets xi and xj
         Xorig = self.process_batch(x, x)
         # print(x.shape,Xorig.shape)
         # print(Xorig.shape)  = torch [64, 784]
@@ -171,7 +152,7 @@ class CFL:
         # Save plot of training and validation losses
         save_loss_plot(self.loss, self._plots_path,prefix)
         # Convert loss dictionary to a dataframe
-        loss_df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in self.loss.items()]))
+        loss_df = pd.DataFrame(dict([(k, pd.Series(v, dtype='float')) for k, v in self.loss.items()]))
         # Save loss dataframe as csv file for later use
         
         loss_df.to_csv(self._loss_path + "/"+  prefix + "-losses.csv")
@@ -270,8 +251,8 @@ class CFL:
             # Else, concatenate subset with itself just to make the computation of loss compatible with the case, 
             # in which we use the combinations. Note that Xorig is already concatenation of two copies of original input.
             Xinput = xi if self.is_combination else self.process_batch(xi, xi)
-            # Xinput.to(self.device).float()
-            # Forwards pass
+            Xinput.to(self.device).float()
+
             z, latent, Xrecon = self.encoder(Xinput) # trow this to federated learning
             # If recontruct_subset is True, the output of decoder should be compared against subset (input to encoder)
             Xorig = Xinput if self.options["reconstruction"] and self.options["reconstruct_subset"] else Xorig
@@ -378,6 +359,8 @@ class CFL:
             Xbatch = self.process_batch(xi, xj)
             # Add it to the list
             concatenated_subsets_list.append(Xbatch)
+        concatenated_subsets_list = [
+        self.process_batch(xi, xj) for xi, xj in subset_combinations]
         
         # Return the list of combination of subsets
         return concatenated_subsets_list
@@ -385,7 +368,7 @@ class CFL:
         
     def mask_generator(self, p_m, x):
         """Generate mask vector."""
-        mask = np.random.binomial(1, p_m, x.shape)
+        mask = th.random.binomial(1, p_m, x.shape)
         return mask
 
     def subset_generator(self, x, mode="test", skip=[-1]):
@@ -457,12 +440,12 @@ class CFL:
             x_bar = subset_column #[:, subset_column_idx]
             # Add noise to cropped columns - Noise types: Zero-out, Gaussian, or Swap noise
             if self.options["add_noise"]:
-                x_bar_noisy = self.generate_noisy_xbar(x_bar ) #,["swap_noise", "gaussian_noise", "zero_out"][z])
+                x_bar_noisy = self.generate_noisy_xbar(x_bar ).to(self.device)#,["swap_noise", "gaussian_noise", "zero_out"][z])
 
                 # Generate binary mask
                 p_m = self.options["masking_ratio"]
                 if self.low : p_m = 1 - p_m
-                mask = np.random.binomial(1, p_m, x_bar.shape)
+                mask = th.bernoulli(th.full(x_bar.shape, p_m)).to(self.device)
 
                 # Replace selected x_bar features with the noisy ones
                 x_bar = x_bar * (1 - mask) + x_bar_noisy * mask
@@ -491,17 +474,17 @@ class CFL:
         if self.low : noise_level = 1 -  noise_level
 
         # Initialize corruption array
-        x_bar = np.zeros([no, dim])
+        x_bar = th.zeros([no, dim])
 
         # Randomly (and column-wise) shuffle data
         if noise_type == "swap_noise":
             for i in range(dim):
-                idx = np.random.permutation(no)
+                idx = th.randperm(no)
                 x_bar[:, i] = x[idx, i]
         # Elif, overwrite x_bar by adding Gaussian noise to x
 
         elif noise_type == "gaussian_noise":
-            x_bar = x + np.random.normal(float(th.mean(x)), noise_level, x.shape)
+            x_bar = x + th.random.normal(float(th.mean(x)), noise_level, x.shape)
 
         else:
             x_bar = x_bar
@@ -516,7 +499,7 @@ class CFL:
     def process_batch(self, xi, xj):
         """Concatenates two transformed inputs into one, and moves the data to the device as tensor"""
         # Combine xi and xj into a single batch
-        Xbatch = np.concatenate((xi, xj), axis=0)
+        Xbatch = th.cat((xi, xj), axis=0)
         # Convert the batch to tensor and move it to where the model is
         Xbatch = self._tensor(Xbatch)
         # Return batches
@@ -550,31 +533,38 @@ class CFL:
         for _, model in self.model_dict.items():
             model.train() if mode == "training" else model.eval()
 
-    def save_weights(self,client):
+    def save_weights(self, client):
         config = self.options
 
         prefix = "Client-" + str(client) + "-" + str(config['epochs']) + "e-" + str(config["fl_cluster"]) + "fl-"  \
-        + str(config["poisonClient"]) + "pc-" + str(config["poisonLevel"]) +  "pl-" \
-        + str(config["randomLevel"]) + "rl-" + str(config["dataset"])
+                 + str(config["poisonClient"]) + "pc-" + str(config["poisonLevel"]) + "pl-" \
+                 + str(config["randomLevel"]) + "rl-" + str(config["dataset"])
 
-        """Used to save weights."""
+        """Used to save model parameters."""
         for model_name in self.model_dict:
-            th.save(self.model_dict[model_name], self._model_path + "/" + model_name + "_"+ prefix + ".pt")
-        print("Done with saving models.")
+            # Save only the parameters (state_dict)
+            th.save(self.model_dict[model_name].state_dict(), 
+                    self._model_path + "/" + model_name + "_" + prefix + ".pth")
+        print("Done with saving model parameters.")
 
-    def load_models(self,client):
+    def load_models(self, client):
         config = self.options
 
         prefix = "Client-" + str(client) + "-" + str(config['epochs']) + "e-" + str(config["fl_cluster"]) + "fl-"  \
-        + str(config["poisonClient"]) + "pc-" + str(config["poisonLevel"]) +  "pl-" \
-        + str(config["randomLevel"]) + "rl-" + str(config["dataset"])
+                 + str(config["poisonClient"]) + "pc-" + str(config["poisonLevel"]) + "pl-" \
+                 + str(config["randomLevel"]) + "rl-" + str(config["dataset"])
 
-        """Used to load weights saved at the end of the training."""
+        """Used to load model parameters saved at the end of the training."""
+        
         for model_name in self.model_dict:
-            model = th.load(self._model_path + "/" + model_name + "_"+ prefix + ".pt", map_location=self.device)
-            setattr(self, model_name, model.eval())
-            print(f"--{model_name} is loaded")
-        print("Done with loading models.")
+            # Load the parameters (state_dict) into the model
+            state_dict = th.load(self._model_path + "/" + model_name + "_" + prefix + ".pth", 
+                                 map_location=self.device)
+            self.model_dict[model_name].load_state_dict(state_dict)
+            self.model_dict[model_name].eval()  # Set the model to evaluation mode
+            print(f"--{model_name} parameters are loaded")
+        print("Done with loading model parameters.")
+
 
     def print_model_summary(self):
         """Displays model architectures as a sanity check to see if the models are constructed correctly."""
@@ -600,6 +590,7 @@ class CFL:
         loss.backward(retain_graph=retain_graph)
         # Update weights
         optimizer.step()
+        th.empty_cache()
 
     def _set_scheduler(self):
         """Sets a scheduler for learning rate of autoencoder"""
@@ -623,9 +614,9 @@ class CFL:
 
     def _tensor(self, data):
         """Turns numpy arrays to torch tensors"""
-        if type(data).__module__ == np.__name__:
-            data = np.float32(data) # support mps
-            data = th.from_numpy(data)
+        # if type(data).__module__ == np.__name__:
+        #     data = np.float32(data) # support mps
+        #     data = th.from_numpy(data)
 
         # return data
         return data.to(self.device).float()
