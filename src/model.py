@@ -75,8 +75,8 @@ class CFL:
     def set_autoencoder(self):
         """Sets up the autoencoder model, optimizer, and loss"""
         # Instantiate the model for the text Autoencoder
-        # self.encoder = AEWrapper(self.options)
-        self.encoder = th.compile(AEWrapper(self.options)) #optime CPU intel/amd only
+        self.encoder = AEWrapper(self.options)
+        # self.encoder = th.compile(AEWrapper(self.options)) #optime CPU intel/amd only
         # Add the model and its name to a list to save, and load in the future
         self.model_dict.update({"encoder": self.encoder})
         # Assign autoencoder to a device
@@ -127,18 +127,6 @@ class CFL:
             # Compute validation loss
             # print("Compute validation loss")
             val_loss_s = self.validate(validation_loader,total_batches)
-            # Get reconstruction loss for training per epoch
-        # self.loss["tloss_e"].append(sum(self.loss["tloss_b"][-total_batches:-1]) / total_batches)
-
-        # # Change learning rate if scheduler==True
-        # _ = self.scheduler.step() if self.options["scheduler"] else None
-
-        # # Save plot of training and validation losses
-        # save_loss_plot(self.loss, self._plots_path)
-        # # Convert loss dictionary to a dataframe
-        # loss_df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in self.loss.items()]))
-        # # Save loss dataframe as csv file for later use
-        # loss_df.to_csv(self._loss_path + "/"+  str(client) + "_" + str(epoch) + "_losses.csv")
 
         return val_loss_s
 
@@ -167,44 +155,17 @@ class CFL:
             (float): validation loss
         """
         with th.no_grad():
-            # Compute total number of batches, assuming all test sets have same number of samples
-            # total_batches = len(validation_loader)
-            # Initialize validation loss
-            # vloss = 0
-            # Turn on evaluatin mode
-            self.set_mode(mode="evaluation")
-            # Print  validation message
-            # print(f"Computing validation loss. #Batches:{total_batches}")
-            # Attach progress bar to data_loader to check it during training. "leave=True" gives a new line per epoch
-            # val_tqdm = tqdm(enumerate(validation_loader), total=total_batches, leave=True)
-            # Go through batches
-            # for i, (x, _) in val_tqdm:
-
-            # Generate corrupted samples -- labels are not used
             x_tilde_list = self.subset_generator(x)
 
-            # If we use either contrastive and/or distance loss, we need to use combinations of subsets
             if self.is_combination:
-                # Get combinations of subsets [(x1, x2), (x1, x3)...]
                 x_tilde_list = self.get_combinations_of_subsets(x_tilde_list)
                 
-            #  Concatenate original data with itself to be used when computing reconstruction error
-            #  w.r.t reconstructions from xi and xj
             Xorig = self.process_batch(x, x)
 
-                # List to hold validation loss
             val_loss = []
                 
-            # Pass data through model
-            # for xi in x_tilde_list:
-            # xi = x_tilde_list[0]
-                
-            # Pass data through model
             for xi in x_tilde_list:
-                
-                # If we are using combination of subsets, use xi since it is already a concatenation of two subsets. 
-                # Else, concatenate subset with itself just to make the computation of loss compatible with the case, 
-                # in which we use the combinations. Note that Xorig is already concatenation of two copies of original input.
+
                 Xinput = xi if self.is_combination else self.process_batch(xi, xi)
         
                 # Forwards pass
@@ -218,28 +179,7 @@ class CFL:
             val_loss = sum(val_loss) / len(val_loss)
 
         return val_loss
-
-            # val_loss.append(val_loss_s)
-            # # Delete the loss
-            # del val_loss_s
-
-            # # Compute the validation loss for this batch
-            # val_loss = sum(val_loss) / len(val_loss)
-            # vloss = vloss + val_loss.item()
-            # # Clean up to avoid memory issues
-            # del val_loss
-            # gc.collect()
-
-            # # # Turn on training mode
-            # # self.set_mode(mode="training")
-            # # Compute mean validation loss
-            # vloss = vloss / total_batches
-            # # Record the loss
-            # self.loss["vloss_e"].append(vloss)
-            # # Return mean validation loss
-            # return vloss
     
-    # consider this for FL
     def calculate_loss(self, x_tilde_list, Xorig):
         # xi = xi[0] # single partition
         # print(xi.shape)
@@ -247,9 +187,6 @@ class CFL:
 
         # pass data through model
         for xi in x_tilde_list:
-            # If we are using combination of subsets use xi since it is already a concatenation of two subsets. 
-            # Else, concatenate subset with itself just to make the computation of loss compatible with the case, 
-            # in which we use the combinations. Note that Xorig is already concatenation of two copies of original input.
             Xinput = xi if self.is_combination else self.process_batch(xi, xi)
             Xinput.to(self.device).float()
 
@@ -272,81 +209,12 @@ class CFL:
         zrecon_loss = sum(zrecon_loss) / n
 
         return total_loss, contrastive_loss, recon_loss, zrecon_loss
-        # print(tloss, closs, rloss, zloss) = tensor(59.7908, grad_fn=<AddBackward0>) tensor(4.1386, grad_fn=<DivBackward0>) tensor(55.6447, grad_fn=<DivBackward0>) tensor(0.0075, grad_fn=<DivBackward0>)
 
 
-    def update_autoencoder(self, tloss, retain_graph=True): # 6 torch.Size([64, 343]) original mixed 2 partitions, torch.Size([64, 784]) original data stacked
-
-    # def update_autoencoder(self, x_tilde_list, Xorig): # 6 torch.Size([64, 343]) original mixed 2 partitions, torch.Size([64, 784]) original data stacked
-        """Updates autoencoder model using subsets of features
-
-        Args:
-            x_tilde_list (list): A list that contains subsets in torch.tensor format
-            Xorig (torch.tensor): Ground truth data used to generate subsets
-
-        """
-
-        # total_loss, contrastive_loss, recon_loss, zrecon_loss = [], [], [], []
-
-
-        # pass data through model
-        # for xi in x_tilde_list: # partitioned data in a batch
-            # If we are using combination of subsets use xi since it is already a concatenation of two subsets. 
-            # Else, concatenate subset with itself just to make the computation of loss compatible with the case, 
-            # in which we use the combinations. Note that Xorig is already concatenation of two copies of original input.
-        # Xinput = xi if self.is_combination else self.process_batch(xi, xi)
-        # # print(Xinput.shape) torch.Size([64, 343])
-
-        # # Forwards pass
-        # z, latent, Xrecon = self.encoder(Xinput) # normalized layer, encoded, decoded
-        # # print(z.shape, latent.shape, Xrecon.shape) = torch.Size([64, 784]) torch.Size([64, 784]) torch.Size([64, 784])
-        # # 343 to 784? get from option forward or encoder
-
-        # # If recontruct_subset is True, the output of decoder should be compared against subset (input to encoder)
-        # Xorig = Xinput if self.options["reconstruction"] and self.options["reconstruct_subset"] else Xorig # ???
-        # # print(Xorig.shape) torch.Size([64, 784])
-
-        # # Compute losses
-        # tloss, closs, rloss, zloss = self.joint_loss(z, Xrecon, Xorig) # normalized, decoded, pos or neg
-        # return tloss, closs, rloss, zloss
-            # print(tloss, closs, rloss, zloss) = tensor(59.7908, grad_fn=<AddBackward0>) tensor(4.1386, grad_fn=<DivBackward0>) tensor(55.6447, grad_fn=<DivBackward0>) tensor(0.0075, grad_fn=<DivBackward0>)
-            # Accumulate losses
-        #     total_loss.append(tloss)
-        #     contrastive_loss.append(closs)
-        #     recon_loss.append(rloss)
-        #     zrecon_loss.append(zloss)
-
-        # # do this in the server
-        # # Compute the average of losses 
-        # n = len(total_loss)
-        # total_loss = sum(total_loss) / n
-        # contrastive_loss = sum(contrastive_loss) / n
-        # recon_loss = sum(recon_loss) / n
-        # zrecon_loss = sum(zrecon_loss) / n
-
-        # # Record reconstruction loss
-        # self.loss["tloss_b"].append(total_loss.item())
-        # self.loss["closs_b"].append(contrastive_loss.item())
-        # self.loss["rloss_b"].append(recon_loss.item())
-        # self.loss["zloss_b"].append(zrecon_loss.item())
-
-        # # back to client
-        # # Update Autoencoder params
+    def update_autoencoder(self, tloss, retain_graph=True): 
         self._update_model(tloss, self.optimizer_ae, retain_graph=retain_graph)
-        # # Delete loss and associated graph for efficient memory usage
-        # del total_loss, contrastive_loss, recon_loss, zrecon_loss, tloss, closs, rloss, zloss
-        # gc.collect()
 
     def get_combinations_of_subsets(self, x_tilde_list):
-        """Generate a list of combinations of subsets from the list of subsets
-
-        Args:
-            x_tilde_list (list): List of subsets e.g. [x1, x2, x3, ...]
-        
-        Returns:
-            (list): A list of combinations of subsets e.g. [(x1, x2), (x1, x3), ...]
-
-        """        
                             
         # Compute combinations of subsets [(x1, x2), (x1, x3)...]
         subset_combinations = list(itertools.combinations(x_tilde_list, 2))
@@ -372,19 +240,6 @@ class CFL:
         return mask
 
     def subset_generator(self, x, mode="test", skip=[-1]):
-        # print(x.shape)
-        """Generate subsets and adds noise to them
-
-        Args:
-            x (np.ndarray): Input data, which is divded to the subsets
-            mode (bool): Indicates whether we are training a model, or testing it
-            skip (list): List of integers, showing which subsets to skip when training the model
-        
-        Returns:
-            (list): A list of np.ndarrays, each of which is one subset
-            (list): A list of lists, each list of which indicates locations of added noise in a subset
-
-        """
         
         n_subsets = self.options["n_subsets"]
         n_column = self.options["dims"][0]
@@ -393,52 +248,12 @@ class CFL:
         n_column_subset = int(n_column / n_subsets)
         # Number of overlapping features between subsets
         n_overlap = int(overlap * n_column_subset)
-
-        # # Get the range over the number of features
-        # column_idx = list(range(n_column))
-        # # print(column_idx)
-        # # Permute the order of subsets to avoid any bias during training. The order is unchanged at the test time.
-        # permuted_order = np.random.permutation(n_subsets) if mode == "train" else range(n_subsets)
-        # Pick subset of columns (equivalent of cropping)
-        subset_column_list = [x.clone() for n in range(n_subsets)] # for 3 noises layer
-
-        # for n, item in enumerate(subset_column_list):
-        #     subset_column_list[n][:,random.sample(range(item.shape[1]), int(item.shape[1] / n_subsets))] = 0
-
-        # subset_column_list[2][:,:int(subset_column_list[0].shape[1]/3) * np.random.randint(1,3,1)[0] ] = 0
-        # subset_column_list[1][:,int(subset_column_list[1].shape[1]/3):int(subset_column_list[1].shape[1]/3) *2] = 0
-        # subset_column_list[2][:,int(subset_column_list[2].shape[1]/3) *2 :] = 0
-
-        # print(subset_column_list[0],subset_column_list[1])
-
-        # # In test mode, we are using all subsets, i.e. [-1]. But, we can choose to skip some subsets during training.
-        # skip = [-1] if mode == "test" else skip
-
-        # # Generate subsets.
-        # for i in permuted_order:
-        #     # If subset is in skip, don't include it in training. Otherwise, continue.
-        #     if i not in skip:
-        #         if i == 0:
-        #             start_idx = 0
-        #             stop_idx = n_column_subset + n_overlap
-        #         else:
-        #             start_idx = i * n_column_subset - n_overlap
-        #             stop_idx = (i + 1) * n_column_subset
-        #         # Get the subset
-        #         subset_column_idx_list.append(column_idx[start_idx:stop_idx])
-
-        # # Add a dummy copy if there is a single subset
-        # if len(subset_column_idx_list) == 1:
-        #     subset_column_idx_list.append(subset_column_idx_list[0])
-
-        # Get subset of features to create list of cropped data
-        # print(subset_column_idx_list)
+        subset_column_list = [x.clone() for n in range(n_subsets)] 
         x_tilde_list = []
         self.low = False 
         for z, subset_column in enumerate(subset_column_list):
             self.low = not self.low
             x_bar = subset_column #[:, subset_column_idx]
-            # Add noise to cropped columns - Noise types: Zero-out, Gaussian, or Swap noise
             if self.options["add_noise"]:
                 x_bar_noisy = self.generate_noisy_xbar(x_bar ).to(self.device)#,["swap_noise", "gaussian_noise", "zero_out"][z])
 
@@ -447,7 +262,6 @@ class CFL:
                 if self.low : p_m = 1 - p_m
                 mask = th.bernoulli(th.full(x_bar.shape, p_m)).to(self.device)
 
-                # Replace selected x_bar features with the noisy ones
                 x_bar = x_bar * (1 - mask) + x_bar_noisy * mask
 
             # Add the subset to the list   
@@ -456,16 +270,6 @@ class CFL:
         return x_tilde_list
 
     def generate_noisy_xbar(self, x):
-        """Generates noisy version of the samples x
-        
-        Args:
-            x (np.ndarray): Input data to add noise to
-        
-        Returns:
-            (np.ndarray): Corrupted version of input x
-            
-        """
-        # Dimensions
         no, dim = x.shape
 
         # Get noise type
@@ -484,7 +288,7 @@ class CFL:
         # Elif, overwrite x_bar by adding Gaussian noise to x
 
         elif noise_type == "gaussian_noise":
-            x_bar = x + th.random.normal(float(th.mean(x)), noise_level, x.shape)
+            x_bar = x + th.normal(float(th.mean(x)), noise_level, size=x.shape)
 
         else:
             x_bar = x_bar
@@ -555,7 +359,7 @@ class CFL:
                  + str(config["randomLevel"]) + "rl-" + str(config["dataset"])
 
         """Used to load model parameters saved at the end of the training."""
-        
+
         for model_name in self.model_dict:
             # Load the parameters (state_dict) into the model
             state_dict = th.load(self._model_path + "/" + model_name + "_" + prefix + ".pth", 
