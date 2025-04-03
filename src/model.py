@@ -361,10 +361,11 @@ class CFL:
         """Used to load model parameters saved at the end of the training."""
 
         for model_name in self.model_dict:
-            model = th.load(self._model_path + "/" + model_name + "_"+ prefix + ".pt", map_location=self.device)
-            setattr(self, model_name, model.eval())
-            print(f"--{model_name} is loaded")
-        print("Done with loading models.")
+            # Load the parameters (state_dict) into the model
+            model = th.load(self._model_path + "/" + model_name + "_" + prefix + ".pth", map_location=self.device)
+            self.model_dict[model_name].eval()  # Set the model to evaluation mode
+            print(f"--{model_name} parameters are loaded")
+        print("Done with loading model parameters.")
 
 
     def print_model_summary(self):
