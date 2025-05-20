@@ -20,8 +20,8 @@ class AEWrapper(nn.Module):
         """
         super(AEWrapper, self).__init__()
         self.options = options
-        self.encoder = ShallowEncoder(options) if options["shallow_architecture"] else Encoder(options)
-        self.decoder = ShallowDecoder(options) if options["shallow_architecture"] else Decoder(options)
+        self.encoder = ShallowEncoder(options) # if options["shallow_architecture"] else Encoder(options)
+        self.decoder = ShallowDecoder(options) # if options["shallow_architecture"] else Decoder(options)
         # self.EmptyModel = EmptyModel()
         
         # Get the last dimension of encoder. This will also be used as the dimension of projection
@@ -48,68 +48,68 @@ class AEWrapper(nn.Module):
         return z, latent, x_recon
 
 
-class Encoder(nn.Module):
-    def __init__(self, options):
-        """Encoder model
+# class Encoder(nn.Module):
+#     def __init__(self, options):
+#         """Encoder model
 
-        Args:
-            options (dict): Configuration dictionary.
-        """
-        super(Encoder, self).__init__()
-        # Deepcopy options to avoid overwriting the original
-        self.options = copy.deepcopy(options)
-        # Compute the shrunk size of input dimension
-        # n_column_subset = int(self.options["dims"][0] / self.options["n_subsets"])
-        n_column_subset = self.options["dims"][0]
-        # Ratio of overlapping features between subsets
-        overlap = self.options["overlap"]
-        # Number of overlapping features between subsets
-        n_overlap = int(overlap * n_column_subset)
-        # Overwrie the input dimension
-        self.options["dims"][0] = n_column_subset + n_overlap
-        # Forward pass on hidden layers
-        self.hidden_layers = HiddenLayers(self.options)
-        # Compute the latent i.e. bottleneck in Autoencoder
-        self.latent = nn.Linear(self.options["dims"][-2], self.options["dims"][-1])
+#         Args:
+#             options (dict): Configuration dictionary.
+#         """
+#         super(Encoder, self).__init__()
+#         # Deepcopy options to avoid overwriting the original
+#         self.options = copy.deepcopy(options)
+#         # Compute the shrunk size of input dimension
+#         # n_column_subset = int(self.options["dims"][0] / self.options["n_subsets"])
+#         n_column_subset = self.options["dims"][0]
+#         # Ratio of overlapping features between subsets
+#         overlap = self.options["overlap"]
+#         # Number of overlapping features between subsets
+#         n_overlap = int(overlap * n_column_subset)
+#         # Overwrie the input dimension
+#         self.options["dims"][0] = n_column_subset + n_overlap
+#         # Forward pass on hidden layers
+#         self.hidden_layers = HiddenLayers(self.options)
+#         # Compute the latent i.e. bottleneck in Autoencoder
+#         self.latent = nn.Linear(self.options["dims"][-2], self.options["dims"][-1])
 
-    def forward(self, h):
-        # Forward pass on hidden layers
-        h = self.hidden_layers(h)
-        # Compute the mean i.e. bottleneck in Autoencoder
-        latent = self.latent(h)
-        return latent
+#     def forward(self, h):
+#         # Forward pass on hidden layers
+#         h = self.hidden_layers(h)
+#         # Compute the mean i.e. bottleneck in Autoencoder
+#         latent = self.latent(h)
+#         return latent
 
 
-class Decoder(nn.Module):
-    def __init__(self, options):
-        """Decoder model
+# class Decoder(nn.Module):
+#     def __init__(self, options):
+#         """Decoder model
 
-        Args:
-            options (dict): Configuration dictionary.
-        """
-        super(Decoder, self).__init__()
-        # Deepcopy options to avoid overwriting the original
-        self.options = copy.deepcopy(options)
-        # If recontruct_subset is True, output dimension is same as input dimension of Encoder. Otherwise, 
-        # output dimension is same as original feature dimension of tabular data
-        if self.options["reconstruction"] and self.options["reconstruct_subset"]:
-            # Compute the shrunk size of input dimension
-            # n_column_subset = int(self.options["dims"][0] / self.options["n_subsets"])
-            n_column_subset = self.options["dims"][0] 
-            # Overwrie the input dimension
-            self.options["dims"][0] = n_column_subset
-        # Revert the order of hidden units so that we can build a Decoder, which is the symmetric of Encoder
-        self.options["dims"] = self.options["dims"][::-1]
-        # Add hidden layers
-        self.hidden_layers = HiddenLayers(self.options)
-        # Compute logits and probabilities
-        self.logits = nn.Linear(self.options["dims"][-2], self.options["dims"][-1])
+#         Args:
+#             options (dict): Configuration dictionary.
+#         """
+#         super(Decoder, self).__init__()
+#         # Deepcopy options to avoid overwriting the original
+#         self.options = copy.deepcopy(options)
+#         # If recontruct_subset is True, output dimension is same as input dimension of Encoder. Otherwise, 
+#         # output dimension is same as original feature dimension of tabular data
+#         if self.options["reconstruction"] and self.options["reconstruct_subset"]:
+#             # Compute the shrunk size of input dimension
+#             # n_column_subset = int(self.options["dims"][0] / self.options["n_subsets"])
+#             n_column_subset = self.options["dims"][0] 
+#             # Overwrie the input dimension
+#             self.options["dims"][0] = n_column_subset
+#         # Revert the order of hidden units so that we can build a Decoder, which is the symmetric of Encoder
+#         self.options["dims"] = self.options["dims"][::-1]
+#         # Add hidden layers
+#         self.hidden_layers = HiddenLayers(self.options)
+#         # Compute logits and probabilities
+#         self.logits = nn.Linear(self.options["dims"][-2], self.options["dims"][-1])
 
-    def forward(self, h):
-        # Forward pass on hidden layers
-        h = self.hidden_layers(h)
-        # Compute logits
-        logits = self.logits(h)
+#     def forward(self, h):
+#         # Forward pass on hidden layers
+#         h = self.hidden_layers(h)
+#         # Compute logits
+#         logits = self.logits(h)
         return logits
 
     
@@ -131,7 +131,7 @@ class ShallowEncoder(nn.Module):
         # Number of overlapping features between subsets
         n_overlap = int(overlap*n_column_subset)
         # Overwrie the input dimension
-        self.options["dims"][0] = n_column_subset + n_overlap
+        self.options["dims"][0] = n_column_subset # + n_overlap
         # Forward pass on hidden layers
         self.hidden_layers = HiddenLayers(self.options)
 
@@ -180,6 +180,7 @@ class HiddenLayers(nn.Module):
             self.layers.append(nn.LeakyReLU(inplace=False))
             if options["isDropout"]:
                 self.layers.append(nn.Dropout(options["dropout_rate"]))
+        # print(self.layers.shape)
 
     def forward(self, x):
         for layer in self.layers:

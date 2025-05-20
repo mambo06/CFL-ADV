@@ -147,7 +147,7 @@ def main(config):
     })
 
     run(config, save_weights=True, poison=config['poison'])
-    eval.main(copy.deepcopy(config))
+    # eval.main(copy.deepcopy(config))
 
 
 if __name__ == "__main__":

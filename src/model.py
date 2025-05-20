@@ -10,7 +10,7 @@ import pandas as pd
 import torch as th
 # from tqdm import tqdm
 
-from utils.loss_functionsV1 import JointLoss
+from utils.loss_functionsV2 import JointLoss
 from utils.model_plot import save_loss_plot
 from utils.model_utils import AEWrapper
 from utils.utils import set_seed, set_dirs

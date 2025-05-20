@@ -79,9 +79,7 @@ class JointLoss(nn.Module):
         similarity = self.similarity_fn(representation, representation)
         logits = similarity / self.temperature
         # labels = th.cat([th.arange(self.batch_size/2), th.arange(self.batch_size/2)]).to(self.device).long()
-        # labels = th.zeros( self.batch_size).to(self.device).long()
-        labels = th.ones(self.batch_size).to(self.device).long()
-
+        labels = th.zeros( self.batch_size).to(self.device).long()
         loss = self.criterion(logits, labels)
         return loss
 
