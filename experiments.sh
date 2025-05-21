@@ -11,6 +11,8 @@
 #SBATCH -o out_$1
 #SBATCH -e error_$1
 
+module load anaconda3
+source activate /scratch/user/uqaginan/RQ3/
 
 dataset=$1
 
