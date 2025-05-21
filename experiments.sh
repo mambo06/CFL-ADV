@@ -5,11 +5,18 @@
 #SBATCH --ntasks-per-node=1 
 #SBATCH --cpus-per-task=4 
 #SBATCH --mem=16G 
-#SBATCH --job-name=ADV$1 
+#SBATCH --job-name=ADV_$1 
 #SBATCH --partition=general 
 #SBATCH --time=60:00:00
-#SBATCH --output=out_%A_%a_${1}.log 
-#SBATCH --error=error_%A_%a_${1}.log
+
+# Create output directory if it doesn't exist
+outdir="logs"
+mkdir -p $outdir
+
+# Redirect output and error to files
+exec 1> "${outdir}/out_${1}.log"
+exec 2> "${outdir}/error_${1}.log"
+
 
 module load anaconda3
 source activate /scratch/user/uqaginan/RQ3/
