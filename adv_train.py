@@ -2,6 +2,7 @@ import torch.nn.functional as F
 from enum import Enum
 import numpy as np
 from train import Server, Client
+import yaml
 
 from utils.arguments import get_arguments, get_config, print_config_summary
 from utils.utils import set_dirs, run_with_profiler, update_config_with_model_dims, set_seed
@@ -12,6 +13,9 @@ from src.model import CFL
 import random
 from tqdm import tqdm
 import torch
+import evaluation as eval
+import copy
+
 
 
 
@@ -19,8 +23,8 @@ class DefenseManager:
     def __init__(self, config):
         self.config = config
         self.historical_updates = []
-        self.cosine_threshold = config.get('cosine_threshold', 0.85)
-        self.clip_threshold = config.get('clip_threshold', 5.0)
+        self.cosine_threshold = config.get('cosine_threshold', 0.75)
+        self.clip_threshold = config.get('clip_threshold', 100.0)
         self.trim_ratio = config.get('trim_ratio', 0.1)
         self.history_size = config.get('history_size', 10)
         
@@ -35,6 +39,7 @@ class DefenseManager:
     def detect_scale_attack(self, param_update):
         """Detects scaling-based attacks using norm thresholding"""
         param_norm = torch.norm(param_update.float())
+        # if param_norm > self.clip_threshold: print(param_norm , self.clip_threshold)
         return param_norm > self.clip_threshold
     
     def detect_direction_attack(self, param_update, historical_params):
@@ -47,11 +52,12 @@ class DefenseManager:
         
         similarity = F.cosine_similarity(current_direction.unsqueeze(0),
                                       historical_direction.unsqueeze(0))
+        # if similarity < self.cosine_threshold : print(similarity , self.cosine_threshold)
         return similarity < self.cosine_threshold
 
 class RobustServer(Server):
     def __init__(self, model, config):
-        super().__init__(model)
+        super().__init__(model,config)
         self.defense_manager = DefenseManager(config)
         self.historical_updates = {k: [] for k in self.global_dict.keys()}
         
@@ -64,29 +70,34 @@ class RobustServer(Server):
         for key in self.global_dict.keys():
             # Stack parameters and convert to numpy for trimmed mean
             params = torch.stack([update[key].float() for update in param_updates])
-            trimmed = torch.from_numpy(
-                trim_mean(params.numpy(), 
-                         proportiontocut=self.defense_manager.trim_ratio,
-                         axis=0)
-            ).float()
+            # trimmed = torch.from_numpy(
+            #     stats.trim_mean(params.numpy(), 
+            #              proportiontocut=self.defense_manager.trim_ratio,
+            #              axis=0)
+            # ).float()
+            trimmed = self.trim_mean_(params)
             aggregated_params[key] = trimmed
         return aggregated_params
     
-    def aggregate_models(self, client_models, rnd):
+    def trimmed_aggregate(self, client_models):
         validated_models = []
         for client in client_models:
             params = client.get_model_params()
-            is_valid = all(
-                self.defense_manager.validate_update(
-                    params[k],
-                    self.historical_updates[k]
-                ) for k in params.keys()
-            )
-            if is_valid:
-                validated_models.append(client)
-            else:
-                print(f"Detected suspicious update from client {client.client_number}")
-        
+            # print([self.defense_manager.validate_update(
+            #         params[k],
+            #         self.historical_updates[k]
+            #     ) for k in params.keys()])
+            # is_valid = all(
+            #     self.defense_manager.validate_update(
+            #         params[k],
+            #         self.historical_updates[k]
+            #     ) for k in params.keys()
+            # )
+            # if is_valid:
+            #     validated_models.append(client)
+            # else:
+            #     print(f"Detected suspicious update from client {client.client_number}")
+        validated_models.append(client)
         if not validated_models:
             print("Warning: No valid updates received")
             return
@@ -100,6 +111,29 @@ class RobustServer(Server):
             self.historical_updates[k].append(self.global_dict[k].clone())
             if len(self.historical_updates[k]) > self.defense_manager.history_size:
                 self.historical_updates[k].pop(0)
+    def trim_mean_(self, tensors):
+        """
+        Efficient implementation of trimmed mean using pure PyTorch operations
+        Args:
+            tensors: List of tensors or stacked tensor [num_models, *tensor_shape]
+        """
+        if isinstance(tensors, list):
+            tensors = torch.stack(tensors)
+        
+        n = tensors.size(0)
+        k = int(n * self.defense_manager.trim_ratio)
+        
+        if k == 0:
+            return tensors.mean(0)
+        
+        # Sort along the first dimension
+        sorted_tensors, _ = torch.sort(tensors, dim=0)
+        
+        # Remove k smallest and k largest elements
+        trimmed = sorted_tensors[k:n-k]
+        
+        # Compute mean of remaining elements
+        return trimmed.mean(0)
 
 
 class SecureClient(Client):
@@ -258,7 +292,11 @@ def run(config, save_weights, poison):
             for client in clients:
                 tloss += client.train().item()
 
-            server.aggregate_models(clients, rnd=config['randomClient'])
+            
+            if config["randomSelection"]:
+                server.random_aggregate(clients, rnd=True)
+            else:
+                server.trimmed_aggregate(clients)
 
             for client in clients:
                 client.set_model(server.distribute_model())
@@ -295,12 +333,14 @@ def main(config):
         'norm': info['norm'],
         'learning_rate_reducer': config['learning_rate'],
         "attack_type": "scale",
-        "attack_scale": 10.0,
+        "attack_scale": 0.2,
         "attack_probability": 1.0,
         "target_layer": "encoder.layer1",
         "noise_std": 0.1,
         "poison": True,
-        "poisonClient": 0.3  # 30% of clients are malicious
+        "poisonClient": 0.0,  # 30% of clients are malicious
+        "randomSelection": True,
+        "randomLevel":1
     })
 
     run(config, save_weights=True, poison=config['poison'])

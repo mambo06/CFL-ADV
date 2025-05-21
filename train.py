@@ -25,17 +25,18 @@ import random
 
 
 class Server:
-    def __init__(self, model):
+    def __init__(self, model,config):
         self.global_model = model
         self.global_dict = self.global_model.encoder.state_dict()
+        self.config = config
 
-    def aggregate_models(self, client_models, rnd):
+    def random_aggregate(self, client_models, rnd):
         for k in self.global_dict.keys():
             param_stack = [client.get_model_params()[k].float() for client in client_models]
             # Randomly sample parameters based on config['randomLevel']
-            param_stack = random.sample(param_stack, int(len(client_models) * config['randomLevel'])) if rnd else param_stack
+            param_stack = random.sample(param_stack, int(len(client_models) * self.config['randomLevel'])) if rnd else param_stack
             self.global_dict[k] = torch.stack(param_stack).mean(0)
-
+    
     def distribute_model(self):
         return self.global_dict
 
@@ -92,7 +93,7 @@ def run(config, save_weights, poison):
     ds_loader = Loader(config, dataset_name=config["dataset"], client=0)
     config = update_config_with_model_dims(ds_loader, config)
     global_model = CFL(config)
-    server = Server(global_model)
+    server = Server(global_model,config)
     clients = []
 
     poison_clients = random.sample(range(config["fl_cluster"]), int(config["fl_cluster"] * config['poisonClient'])) if poison else []
@@ -113,7 +114,7 @@ def run(config, save_weights, poison):
                 if client.poison:
                     client.poison_model(config['poisonLevel'])
 
-            server.aggregate_models(clients, rnd=config['randomClient'])
+            server.random_aggregate(clients, rnd=config['randomClient'])
 
             for client in clients:
                 client.set_model(server.distribute_model())

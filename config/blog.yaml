@@ -28,7 +28,7 @@ validate: false                   # Whether to compute validation loss
 scheduler: false                  # If True, turns on scheduler for learning rate.
 
 # Options for subsetting
-n_subsets: 1                      # Use at least 2 when using a single view. 
+n_subsets: 2                      # Use at least 2 when using a single view. 
 overlap: 0                     # A ratio [0,1) that defines how many features are overlapped between subsets. 
                                   
 # Type of aggregation / pooling for latent variables of subsets
