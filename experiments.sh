@@ -5,9 +5,12 @@
 #SBATCH --ntasks-per-node=1 
 #SBATCH --cpus-per-task=4 
 #SBATCH --mem=16G 
-#SBATCH --job-name=ADV_$1 
 #SBATCH --partition=general 
 #SBATCH --time=60:00:00
+
+# Set job name with dataset
+job_name="ADV_$1"
+scontrol update job $SLURM_JOB_ID name=$job_name
 
 # Create output directory if it doesn't exist
 outdir="logs"
