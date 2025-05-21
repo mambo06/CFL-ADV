@@ -365,7 +365,7 @@ class CFL:
             model = th.load(self._model_path + "/" + model_name + "_" + prefix + ".pth", map_location=self.device)
             self.model_dict[model_name].eval()  # Set the model to evaluation mode
             print(f"--{model_name} parameters are loaded")
-        print("Done with loading model parameters.")
+        # print("Done with loading model parameters.")
 
 
     def print_model_summary(self):

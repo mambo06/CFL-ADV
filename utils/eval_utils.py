@@ -34,7 +34,7 @@ def linear_model_eval(config, z_train, y_train, suffix , z_test=None, y_test=Non
     results_list = []
     
     # Print out a useful description
-    print(10 * ">" + description)
+    # print(10 * ">" + description)
 
     prefix = str(suffix) + str(config['epochs']) + "e-" + str(config["fl_cluster"]) + "fl-"  \
         + str(config["poisonClient"]) + "pc-" + str(config["poisonLevel"]) + "pl-"  \
@@ -51,7 +51,7 @@ def linear_model_eval(config, z_train, y_train, suffix , z_test=None, y_test=Non
     regularisation_list = [10] # overide all
     for c in regularisation_list:
         # Initialize Logistic regression
-        print(10 * "*" + "C=" + str(c) + 10 * "*")
+        # print(10 * "*" + "C=" + str(c) + 10 * "*")
         clf = LogisticRegression(max_iter=1200, solver='lbfgs', C=c, multi_class='multinomial')
         #clf = RandomForestClassifier()
         # clf = SVC()
@@ -67,7 +67,7 @@ def linear_model_eval(config, z_train, y_train, suffix , z_test=None, y_test=Non
         tr_acc =  precision_recall_fscore_support(y_train, y_hat_train, average='weighted')
         te_acc =  precision_recall_fscore_support(y_test, y_hat_test, average='weighted')
         print("Training score: precision {}, recall {}, F1 {}, support {}".format(tr_acc[0],tr_acc[1],tr_acc[2],tr_acc[3]) )
-        print("Training score: precision {}, recall {}, F1 {}, support {}".format(te_acc[0],te_acc[1],te_acc[2],te_acc[3]) )
+        print("Test score: precision {}, recall {}, F1 {}, support {}".format(te_acc[0],te_acc[1],te_acc[2],te_acc[3]) )
         # Record results
         results_list.append({"model": "LogReg_" + str(c),
                              "train_acc": tr_acc,
@@ -91,8 +91,8 @@ def linear_model_eval(config, z_train, y_train, suffix , z_test=None, y_test=Non
         dict_writer = csv.DictWriter(output_file, keys)
         dict_writer.writeheader()
         dict_writer.writerows(results_list)
-        print(f"{100 * '='}\n")
         print(f"Classification results are saved at: {file_path}")
+        # print(f"{100 * '='}\n")
     return results_list
 
 

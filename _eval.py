@@ -73,7 +73,7 @@ def eval(data_loader, config, client, nData):
 
         
         # End of the run
-        print(f"Evaluation results are saved under ./results/{config['framework']}/evaluation/\n")
+        # print(f"Evaluation results are saved under ./results/{config['framework']}/evaluation/\n")
         print(f"{100 * '='}\n")
 
         # If mlflow==True, track results
@@ -92,7 +92,7 @@ def evalulate_models(data_loader, model, config, client, plot_suffix="_Test", mo
                  break_line('=') + f"Dataset used: {config['dataset']}\n" + break_line('=')
     
     # Print the message         
-    print(decription)
+    # print(decription)
     
     # Get the model
     encoder = model.encoder
@@ -161,7 +161,7 @@ def evalulate_models(data_loader, model, config, client, plot_suffix="_Test", mo
     z =   z[int(dims[0] * config['training_data_ratio']):]
     y_train = clabels[:int(dims[0] * config['training_data_ratio'])] 
     clabels=  clabels[int(dims[0] * config['training_data_ratio']):] 
-    print(z_train.shape,z.shape)
+    # print(z_train.shape,z.shape)
 
     # Visualise clusters
     # if (plot_suffix =="test"):
@@ -169,8 +169,8 @@ def evalulate_models(data_loader, model, config, client, plot_suffix="_Test", mo
 
     if mode == 'test':
         # Title of the section to print 
-        print(20 * "*" + " Running evaluation using Logistic Regression trained on the joint embeddings" \
-                       + " of training set and tested on that of test set" + 20 * "*")
+        # print(20 * "*" + " Running evaluation using Logistic Regression trained on the joint embeddings" \
+                       # + " of training set and tested on that of test set" + 20 * "*")
         # Description of the task (Classification scores using Logistic Regression) to print on the command line
         description = "Sweeping C parameter. Smaller C values specify stronger regularization:"
 
@@ -213,7 +213,7 @@ def evalulate_original(data_loader, config, client, plot_suffix="_Test", mode='t
     z =   z[int(dims[0] * config['training_data_ratio']):]
     y_train = clabels[:int(dims[0] * config['training_data_ratio'])] 
     clabels=  clabels[int(dims[0] * config['training_data_ratio']):]  
-    print(z_train.shape,z.shape)
+    # print(z_train.shape,z.shape)
 
 
     # Visualise clusters
@@ -222,8 +222,8 @@ def evalulate_original(data_loader, config, client, plot_suffix="_Test", mode='t
 
     if mode == 'test':
         # Title of the section to print 
-        print(20 * "*" + " Running evaluation using Logistic Regression trained on the original data" \
-                       + " of training set and tested on that of test set" + 20 * "*")
+        # print(20 * "*" + " Running evaluation using Logistic Regression trained on the original data" \
+        #                + " of training set and tested on that of test set" + 20 * "*")
         # Description of the task (Classification scores using Logistic Regression) to print on the command line
         description = "Sweeping C parameter. Smaller C values specify stronger regularization:"
         # Evaluate the embeddings

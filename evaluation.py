@@ -59,7 +59,7 @@ if __name__ == "__main__":
     config['cat_policy'] = json.loads(Path('data/'+config["dataset"]+'/info.json').read_text())['cat_policy']
     config['norm'] = json.loads(Path('data/'+config["dataset"]+'/info.json').read_text())['norm']
     config['learning_rate_reducer'] = config['learning_rate']
-    print_config_summary(config, args)
+    # print_config_summary(config, args)
     main(config)
     
 
