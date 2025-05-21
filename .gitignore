@@ -1,4 +1,4 @@
-data
+data*
 results/
 resultsNoPearson/
 resultsPearson/
@@ -7,7 +7,7 @@ __pycache__/
 *.csv
 *.png
 *.ipynb
-*.sh
+# *.sh
 .DS_Store
 *.pckl
 *.rst

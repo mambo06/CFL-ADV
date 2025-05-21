@@ -71,11 +71,6 @@ class RobustServer(Server):
         for key in self.global_dict.keys():
             # Stack parameters and convert to numpy for trimmed mean
             params = torch.stack([update[key].float() for update in param_updates])
-            # trimmed = torch.from_numpy(
-            #     stats.trim_mean(params.numpy(), 
-            #              proportiontocut=self.defense_manager.trim_ratio,
-            #              axis=0)
-            # ).float()
             trimmed = self.trim_(params).mean(0)
             aggregated_params[key] = trimmed
         return aggregated_params
@@ -347,15 +342,15 @@ def main(config):
         'cat_policy': info['cat_policy'],
         'norm': info['norm'],
         'learning_rate_reducer': config['learning_rate'],
-        "attack_type": "scale", #scale, model_replacement, direction, gradient_ascent, targeted
-        "attack_scale": 10,
+        "attack_type": "direction", # ["scale", "model_replacement", "direction", "gradient_ascent", "targeted"]
+        "attack_scale": 10, # [0.2, 0.5, 2, 5, 10]
         "attack_probability": 1.0,
         "target_layer": "encoder.layer1",
         "noise_std": 0.1,
         "poison": True,
-        "poisonClient": 0.3,  # 30% of clients are malicious
-        "randomSelection": False,
-        "randomLevel":1
+        "poisonClient": 0.3,  # 30% of clients are malicious [0.2, 0.5, 0.8]
+        "randomSelection": False, # this also control change defend with trim [True, False]
+        "randomLevel":0.5 # [0.2, 0.5, 0.8]
     })
 
     run(copy.deepcopy(config), save_weights=True, poison=config['poison'])
