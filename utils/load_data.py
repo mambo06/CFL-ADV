@@ -149,7 +149,7 @@ class TabularDataset(Dataset):
         dataset_name = self.config['dataset']
 
         dir_ = 'data/'+ dataset_name + '/normal' 
-        if self.config['dataset'] in dirs : # if from other paper, datra not normalized
+        if self.config['dataset'] in dirs : # if from paper, data not normalized
             N_train, N_test,N_val, y_train, y_test,y_val = self.joinData(cat_policy=self.config['cat_policy'],normalization=True, norm=self.config['norm'])
            
         else : # else data has been normalized

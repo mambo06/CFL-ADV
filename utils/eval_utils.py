@@ -48,7 +48,7 @@ def linear_model_eval(config, z_train, y_train, suffix , z_test=None, y_test=Non
         # regularisation_list = [0.01, 0.1 , 1, 10, 1e2, 1e3, 1e4, 1e5, 1e6]
     else :
         regularisation_list = [0.001]
-    regularisation_list = [1] # overide all
+    regularisation_list = [10] # overide all
     for c in regularisation_list:
         # Initialize Logistic regression
         print(10 * "*" + "C=" + str(c) + 10 * "*")

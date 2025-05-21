@@ -35,7 +35,9 @@ class JointLoss(nn.Module):
         self.device = options["device"]
         self.mask_for_neg_samples = self._get_mask_for_neg_samples()
         self.similarity_fn = self._cosine_similarity if options["cosine_similarity"] else self._dot_similarity
-        self.criterion = nn.CrossEntropyLoss(reduction="mean")
+        # self.criterion = nn.CrossEntropyLoss(reduction="mean")
+        self.criterion = nn.MSELoss(reduction="mean")
+
 
     def _get_mask_for_neg_samples(self):
         """
@@ -58,19 +60,24 @@ class JointLoss(nn.Module):
         """
         x = x[:int(x.shape[0]/2)]
         y = y[int(y.shape[0]/2):]
-        return th.matmul(x, y.T)
+        # return th.matmul(x, y.T)
+        x_normalized = F.normalize(x, dim=-1)
+        y_normalized = F.normalize(y, dim=-1)
+
+        return th.matmul(x_normalized, y_normalized.T)
 
     @staticmethod
     def _cosine_similarity(x, y):
         """
         Compute cosine similarity.
         """
+        similarity = th.nn.CosineSimilarity(dim=-1)
         x = x[:int(x.shape[0]/2)]
         y = y[int(y.shape[0]/2):]
 
         x_normalized = F.normalize(x, dim=-1)
         y_normalized = F.normalize(y, dim=-1)
-        return th.matmul(x_normalized, y_normalized.T)
+        return similarity(x_normalized, y_normalized)
 
     def XNegloss(self, representation):
         """
@@ -79,7 +86,8 @@ class JointLoss(nn.Module):
         similarity = self.similarity_fn(representation, representation)
         logits = similarity / self.temperature
         # labels = th.cat([th.arange(self.batch_size/2), th.arange(self.batch_size/2)]).to(self.device).long()
-        labels = th.zeros( self.batch_size).to(self.device).long()
+        labels = th.zeros( logits.shape).to(self.device)
+        # labels = th.ones( self.batch_size).to(self.device).long()
         loss = self.criterion(logits, labels)
         return loss
 

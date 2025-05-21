@@ -37,6 +37,7 @@ class JointLoss(nn.Module):
         self.similarity_fn = self._cosine_similarity if options["cosine_similarity"] else self._dot_similarity
         self.criterion = nn.CrossEntropyLoss(reduction="mean")
 
+
     def _get_mask_for_neg_samples(self):
         """
         Generate a mask for negative samples in the similarity matrix.
