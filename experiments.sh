@@ -8,8 +8,8 @@
 #SBATCH --job-name=ADV$1 
 #SBATCH --partition=general 
 #SBATCH --time=60:00:00
-#SBATCH -o out_$1
-#SBATCH -e error_$1
+#SBATCH --output=out_%A_%a_${1}.log 
+#SBATCH --error=error_%A_%a_${1}.log
 
 module load anaconda3
 source activate /scratch/user/uqaginan/RQ3/
