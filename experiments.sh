@@ -31,8 +31,8 @@ attackType="scale,model_replacement,direction,gradient_ascent,targeted"
 malClient="0.2,0.5,0.8"
 randomLevel="1,0.2,0.5,0.8"
 
-
-python -W ignore adv_train.py -d $dataset -e 50
+echo "python -W ignore adv_train.py -d $dataset -e 1"
+python -W ignore adv_train.py -d $dataset -e 1
 
 for rl in $(echo $randomLevel | tr ',' ' ')
 do
@@ -40,7 +40,8 @@ do
 	do
 		for at in $(echo $attackType | tr ',' ' ')
 		do
-			python -W ignore adv_train.py -d $dataset -e 50 -rl $rl -mc $mc -at $at
+			echo "python -W ignore adv_train.py -d $dataset -e 1 -rl $rl -mc $mc -at $at"
+			python -W ignore adv_train.py -d $dataset -e 1 -rl $rl -mc $mc -at $at
 		done
 
 	done
