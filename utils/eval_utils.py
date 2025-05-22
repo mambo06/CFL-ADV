@@ -32,15 +32,8 @@ def linear_model_eval(config, z_train, y_train, suffix , z_test=None, y_test=Non
 
     """
     results_list = []
-    
-    # Print out a useful description
-    # print(10 * ">" + description)
 
-    prefix = str(suffix) + str(config['epochs']) + "e-" + str(config["fl_cluster"]) + "fl-"  \
-        + str(config["poisonClient"]) + "pc-" + str(config["poisonLevel"]) + "pl-"  \
-        + str(config["randomLevel"]) + "rl-" + str(config["dataset"])
-
-    file_name = prefix
+    file_name = config['prefix']
     
     # Sweep regularization parameter to see what works best for logistic regression
     if (nData == None):

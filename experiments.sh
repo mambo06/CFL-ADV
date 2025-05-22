@@ -25,11 +25,24 @@ module load anaconda3
 source activate /scratch/user/uqaginan/RQ3/
 
 dataset=$1
+echo "Experiemnts on dataset: $dataset"
 
-list="scale" #,model_replacement,direction,gradient_ascent,targeted"
-for item in $(echo $list | tr ',' ' ')
+attackType="scale,model_replacement,direction,gradient_ascent,targeted"
+malClient="0.2,0.5,0.8"
+randomLevel="1,0.2,0.5,0.8"
+
+
+python -W ignore adv_train.py -d $dataset -e 50
+
+for rl in $(echo $randomLevel | tr ',' ' ')
 do
-    echo "dataset: $dataset"
-    python -W ignore adv_train.py -d $dataset -e 1
+	for mc in $(echo $malClient | tr ',' ' ')
+	do
+		for at in $(echo $attackType | tr ',' ' ')
+		do
+			python -W ignore adv_train.py -d $dataset -e 50 -rl $rl -mc $mc -at $at
+		done
+
+	done
 
 done

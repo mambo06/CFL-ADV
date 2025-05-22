@@ -49,14 +49,15 @@ def get_arguments():
     parser.add_argument("-lc", "--local", dest='local', action='store_true')
     parser.add_argument("-e", "--epoch", type=int, default=5,)
     parser.add_argument("-c", "--client", type=int, default=4, )
-    parser.add_argument("-pl", "--poisonLevel", type=float, default=1, )
-    parser.add_argument("-pc", "--poisonClient", type=float, default=0, )
-    parser.add_argument("-rl", "--randomLevel", type=float, default=1, )
     parser.add_argument("-s", "--sampling", type=float, default=1, )
+
+    parser.add_argument("-as", "--attack_scale", type=float, default=10, )
+    parser.add_argument("-mc", "--malClient", type=float, default=0, )
+    parser.add_argument("-rl", "--randomLevel", type=float, default=1, )
+    parser.add_argument("-at", "--attack_type", type=str, default='scale', )
     
     # Return parser arguments
     return parser.parse_args()
-
 
 def get_config(args):
     """Loads options using yaml files under /config folder and adds command line arguments to it"""
@@ -77,13 +78,13 @@ def get_config(args):
     config['local'] = args.local
     config['epochs'] = args.epoch
     config['fl_cluster'] = args.client
-    config['poisonLevel'] = args.poisonLevel
-    config['poisonClient'] = args.poisonClient
-    config['randomLevel'] = args.randomLevel
     config['sampling'] = args.sampling
 
-    # config["device"] = th.device('cuda:' + args.device_number if th.cuda.is_available() and args.gpu else 'cpu')
-    # Return
+    config['attack_scale'] = args.attack_scale
+    config['malClient'] = args.malClient
+    config['randomLevel'] = args.randomLevel
+    config['attack_type'] = args.attack_type
+
     return config
 
 

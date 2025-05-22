@@ -131,11 +131,7 @@ class CFL:
         return val_loss_s
 
     def saveTrainParams(self, client):
-        config = self.options
-        prefix = "Client-" + str(client) + "-" + str(config['epochs']) + "e-" + str(config["fl_cluster"]) + "fl-"  \
-        + str(config["poisonClient"]) + "pc-" + str(config["poisonLevel"]) +  "pl-" \
-        + str(config["randomLevel"]) + "rl-" + str(config["dataset"])
-
+        prefix = self.options['prefix']
 
         # Save plot of training and validation losses
         save_loss_plot(self.loss, self._plots_path,prefix)
@@ -338,11 +334,7 @@ class CFL:
             model.train() if mode == "training" else model.eval()
 
     def save_weights(self, client):
-        config = self.options
-
-        prefix = "Client-" + str(client) + "-" + str(config['epochs']) + "e-" + str(config["fl_cluster"]) + "fl-"  \
-                 + str(config["poisonClient"]) + "pc-" + str(config["poisonLevel"]) + "pl-" \
-                 + str(config["randomLevel"]) + "rl-" + str(config["dataset"])
+        prefix = self.options['prefix']
 
         """Used to save model parameters."""
         for model_name in self.model_dict:
@@ -352,11 +344,7 @@ class CFL:
         print("Done with saving model parameters.")
 
     def load_models(self, client):
-        config = self.options
-
-        prefix = "Client-" + str(client) + "-" + str(config['epochs']) + "e-" + str(config["fl_cluster"]) + "fl-"  \
-                 + str(config["poisonClient"]) + "pc-" + str(config["poisonLevel"]) + "pl-" \
-                 + str(config["randomLevel"]) + "rl-" + str(config["dataset"])
+        prefix = self.options['prefix']
 
         """Used to load model parameters saved at the end of the training."""
 
@@ -415,10 +403,5 @@ class CFL:
         return th.optim.AdamW(itertools.chain(*params), lr=lr, betas=(0.9, 0.999), eps=1e-07)
 
     def _tensor(self, data):
-        """Turns numpy arrays to torch tensors"""
-        # if type(data).__module__ == np.__name__:
-        #     data = np.float32(data) # support mps
-        #     data = th.from_numpy(data)
 
-        # return data
         return data.to(self.device).float()

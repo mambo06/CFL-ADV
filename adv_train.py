@@ -61,20 +61,8 @@ class RobustServer(Server):
         super().__init__(model,config)
         self.defense_manager = DefenseManager(config)
         self.historical_updates = {k: [] for k in self.global_dict.keys()}
+        self.aggregated_method = self.random_aggregate if config['randomLevel'] < 1 else self.trimmed_aggregate
         
-    def robust_aggregate(self, param_updates, weights=None):
-        """Implements robust aggregation using trimmed mean"""
-        if weights is None:
-            weights = [1/len(param_updates)] * len(param_updates)
-            
-        aggregated_params = {}
-        for key in self.global_dict.keys():
-            # Stack parameters and convert to numpy for trimmed mean
-            params = torch.stack([update[key].float() for update in param_updates])
-            trimmed = self.trim_(params).mean(0)
-            aggregated_params[key] = trimmed
-        return aggregated_params
-    
     def trimmed_aggregate(self, client_models):
         validated_models = []
         list_paramNorm = []
@@ -120,6 +108,28 @@ class RobustServer(Server):
             self.historical_updates[k].append(self.global_dict[k].clone())
             if len(self.historical_updates[k]) > self.defense_manager.history_size:
                 self.historical_updates[k].pop(0)
+                
+    def random_aggregate(self, client_models):
+        for k in self.global_dict.keys():
+            param_stack = [client.get_model_params()[k].float() for client in client_models]
+            # Randomly sample parameters based on config['randomLevel']
+            param_stack = random.sample(param_stack, int(len(client_models) * self.config['randomLevel']))
+            self.global_dict[k] = torch.stack(param_stack).mean(0)
+
+
+    def robust_aggregate(self, param_updates, weights=None):
+        """Implements robust aggregation using trimmed mean"""
+        if weights is None:
+            weights = [1/len(param_updates)] * len(param_updates)
+            
+        aggregated_params = {}
+        for key in self.global_dict.keys():
+            # Stack parameters and convert to numpy for trimmed mean
+            params = torch.stack([update[key].float() for update in param_updates])
+            trimmed = self.trim_(params).mean(0)
+            aggregated_params[key] = trimmed
+        return aggregated_params
+    
 
     def trim_(self, tensors):
         """
@@ -267,7 +277,7 @@ class MaliciousClient(Client):
                     param.grad = -param.grad
         return tloss
 
-def run(config, save_weights, poison):
+def run(config, save_weights):
     ds_loader = Loader(config, dataset_name=config["dataset"], client=0)
     config = update_config_with_model_dims(ds_loader, config)
     global_model = CFL(config)
@@ -279,12 +289,17 @@ def run(config, save_weights, poison):
 
     poison_clients = random.sample(
         range(config["fl_cluster"]), 
-        int(config["fl_cluster"] * config['poisonClient'])
-    ) if poison else []
+        int(config["fl_cluster"] * config['malClient'])
+    ) if config['malClient'] > 0.0 else []
+
     print(f'Warning: Poisoning applied to clients: {poison_clients}')
     print(f'Attack type: {attack_manager.attack_type.value}')
 
     for clt in range(config["fl_cluster"]):
+        prefix = (f"Cl-{clt}-{config['epochs']}e-{config['fl_cluster']}fl-"
+                 f"{config['malClient']}mc-{config['attack_type']}_at-"
+                 f"{config['randomLevel']}rl-{config['dataset']}")
+        config.update({"prefix":prefix})
         loader = Loader(config, dataset_name=config["dataset"], client=clt).trainFL_loader
         # Use MaliciousClient for poisoned clients
         if clt in poison_clients:
@@ -303,10 +318,8 @@ def run(config, save_weights, poison):
                 tloss += client.train().item()
 
             
-            if config["randomSelection"]:
-                server.random_aggregate(clients, rnd=True)
-            else:
-                server.trimmed_aggregate(clients)
+          
+            server.aggregated_method(clients)
 
             for client in clients:
                 client.set_model(server.distribute_model())
@@ -327,7 +340,7 @@ def run(config, save_weights, poison):
             model.save_weights(n)
 
         prefix = (f"Client-{n}-{config['epochs']}e-{config['fl_cluster']}fl-"
-                 f"{config['poisonClient']}pc-{config['attack_type']}-"
+                 f"{config['malClient']}pc-{config['attack_type']}-"
                  f"{config['attack_scale']}-{config['dataset']}")
         
         with open(model._results_path + f"/config_{prefix}.yml", 'w') as config_file:
@@ -337,28 +350,24 @@ def main(config):
     config["framework"] = config["dataset"]
     info_path = Path(f'data/{config["dataset"]}/info.json')
     info = json.loads(info_path.read_text())
+    
     config.update({
         'task_type': info['task_type'],
         'cat_policy': info['cat_policy'],
         'norm': info['norm'],
         'learning_rate_reducer': config['learning_rate'],
-        "attack_type": "direction", # ["scale", "model_replacement", "direction", "gradient_ascent", "targeted"]
-        "attack_scale": 10, # [0.2, 0.5, 2, 5, 10]
         "attack_probability": 1.0,
         "target_layer": "encoder.layer1",
         "noise_std": 0.1,
-        "poison": True,
-        "poisonClient": 0.3,  # 30% of clients are malicious [0.2, 0.5, 0.8]
-        "randomSelection": False, # this also control change defend with trim [True, False]
-        "randomLevel":0.5 # [0.2, 0.5, 0.8]
     })
 
-    run(copy.deepcopy(config), save_weights=True, poison=config['poison'])
+    run(copy.deepcopy(config), save_weights=True)
     eval.main(copy.deepcopy(config))
 
 
 if __name__ == "__main__":
     args = get_arguments()
     config = get_config(args)
+    # print_config_summary(config)
     main(config)
 

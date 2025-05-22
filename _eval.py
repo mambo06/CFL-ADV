@@ -27,6 +27,11 @@ def eval(data_loader, config, client, nData):
         config (dict): Dictionary containing options and arguments.
 
     """
+    prefix = (f"Cl-{client}-{config['epochs']}e-{config['fl_cluster']}fl-"
+                 f"{config['malClient']}mc-{config['attack_type']}_at-"
+                 f"{config['randomLevel']}rl-{config['dataset']}")
+    config.update({"prefix":prefix})
+    
     # Instantiate Autoencoder model
     model = CFL(config)
     # Load the model

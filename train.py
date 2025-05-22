@@ -30,13 +30,11 @@ class Server:
         self.global_dict = self.global_model.encoder.state_dict()
         self.config = config
 
-    def random_aggregate(self, client_models, rnd):
+    def aggregate_models(self, client_models):
         for k in self.global_dict.keys():
             param_stack = [client.get_model_params()[k].float() for client in client_models]
-            # Randomly sample parameters based on config['randomLevel']
-            param_stack = random.sample(param_stack, int(len(client_models) * self.config['randomLevel'])) if rnd else param_stack
             self.global_dict[k] = torch.stack(param_stack).mean(0)
-    
+
     def distribute_model(self):
         return self.global_dict
 
@@ -114,7 +112,7 @@ def run(config, save_weights, poison):
                 if client.poison:
                     client.poison_model(config['poisonLevel'])
 
-            server.random_aggregate(clients, rnd=config['randomClient'])
+            server.aggregate_models(clients, rnd=config['randomClient'])
 
             for client in clients:
                 client.set_model(server.distribute_model())
