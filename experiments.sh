@@ -28,11 +28,11 @@ dataset=$1
 echo "Experiemnts on dataset: $dataset"
 
 attackType="scale,model_replacement,direction,gradient_ascent,targeted"
-malClient="0.2,0.5,0.8"
-randomLevel="1,0.2,0.5,0.8"
+malClient="0.25,0.5,0.75"
+randomLevel="1,0.25,0.5,0.75"
 
-echo "python -W ignore adv_train.py -d $dataset -e 1"
-python -W ignore adv_train.py -d $dataset -e 1
+echo "python -W ignore adv_train.py -d $dataset -e 50 -c 6"
+python -W ignore adv_train.py -d $dataset -e 50 -c 6
 
 for rl in $(echo $randomLevel | tr ',' ' ')
 do
@@ -40,8 +40,8 @@ do
 	do
 		for at in $(echo $attackType | tr ',' ' ')
 		do
-			echo "python -W ignore adv_train.py -d $dataset -e 1 -rl $rl -mc $mc -at $at"
-			python -W ignore adv_train.py -d $dataset -e 1 -rl $rl -mc $mc -at $at
+			echo "python -W ignore adv_train.py -d $dataset -e 50 -rl $rl -mc $mc -at $at -c 6"
+			python -W ignore adv_train.py -d $dataset -e 50 -rl $rl -mc $mc -at $at -c 6
 		done
 
 	done
