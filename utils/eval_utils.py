@@ -21,6 +21,7 @@ import pickle
 
 
 def linear_model_eval(config, z_train, y_train, suffix , z_test=None, y_test=None, description="Logistic Reg.", nData=None):
+    # print(z_test)
     """Evaluates representations using Logistic Regression model.
     Args:
         config (dict): Dictionary that defines options to use
@@ -33,7 +34,7 @@ def linear_model_eval(config, z_train, y_train, suffix , z_test=None, y_test=Non
     """
     results_list = []
 
-    file_name = config['prefix']
+    file_name = suffix + config['prefix'][5:]
     
     # Sweep regularization parameter to see what works best for logistic regression
     if (nData == None):

@@ -30,10 +30,10 @@ class DefenseManager:
         
     def validate_update(self, param_update, historical_params, clip_threshold):
         """Validates parameter updates using multiple defense mechanisms"""
-        if self.detect_scale_attack(param_update, clip_threshold):
-            return False
-        if self.detect_direction_attack(param_update, historical_params):
-            return False
+        # if self.detect_scale_attack(param_update, clip_threshold):
+        #     return False
+        # if self.detect_direction_attack(param_update, historical_params):
+        #     return False
         return True
     
     def detect_scale_attack(self, param_update, clip_threshold):
@@ -100,8 +100,10 @@ class RobustServer(Server):
             return
             
         # Apply robust aggregation
-        param_updates = [client.get_model_params() for client in validated_models]
-        self.global_dict = self.robust_aggregate(param_updates)
+        
+        # self.global_dict = self.robust_aggregate(validated_models)
+
+        self.global_dict = self.aggregate_models(validated_models)
         
         # Update historical records
         for k in self.global_dict.keys():
@@ -117,8 +119,9 @@ class RobustServer(Server):
             self.global_dict[k] = torch.stack(param_stack).mean(0)
 
 
-    def robust_aggregate(self, param_updates, weights=None):
+    def robust_aggregate(self, validated_models, weights=None):
         """Implements robust aggregation using trimmed mean"""
+        param_updates = [client.get_model_params() for client in validated_models]
         if weights is None:
             weights = [1/len(param_updates)] * len(param_updates)
             
@@ -278,6 +281,7 @@ class MaliciousClient(Client):
         return tloss
 
 def run(config, save_weights):
+    config = copy.deepcopy(config)
     ds_loader = Loader(config, dataset_name=config["dataset"], client=0)
     config = update_config_with_model_dims(ds_loader, config)
     global_model = CFL(config)
@@ -323,7 +327,7 @@ def run(config, save_weights):
 
             for client in clients:
                 client.set_model(server.distribute_model())
-                client.step()
+                # client.step()
                 client.model.loss["tloss_e"].append(
                     sum(client.model.loss["tloss_b"][-total_batches:]) / total_batches
                 )

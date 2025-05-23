@@ -51,7 +51,7 @@ def get_arguments():
     parser.add_argument("-c", "--client", type=int, default=4, )
     parser.add_argument("-s", "--sampling", type=float, default=1, )
 
-    parser.add_argument("-as", "--attack_scale", type=float, default=10, )
+    parser.add_argument("-as", "--attack_scale", type=float, default=0.2, )
     parser.add_argument("-mc", "--malClient", type=float, default=0, )
     parser.add_argument("-rl", "--randomLevel", type=float, default=1, )
     parser.add_argument("-at", "--attack_type", type=str, default='scale', )

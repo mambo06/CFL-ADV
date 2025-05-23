@@ -14,6 +14,7 @@ from utils.arguments import print_config_summary
 from utils.eval_utils import linear_model_eval, plot_clusters, append_tensors_to_lists, concatenate_lists, aggregate
 from utils.load_data import Loader
 from utils.utils import set_dirs, run_with_profiler, update_config_with_model_dims
+import copy
 
 torch.manual_seed(1)
 
@@ -31,11 +32,12 @@ def eval(data_loader, config, client, nData):
                  f"{config['malClient']}mc-{config['attack_type']}_at-"
                  f"{config['randomLevel']}rl-{config['dataset']}")
     config.update({"prefix":prefix})
-    
+
     # Instantiate Autoencoder model
     model = CFL(config)
     # Load the model
-    if not config['baseGlobal'] : model.load_models(client)
+    # if not config['baseGlobal'] : 
+    model.load_models(client)
 
     
     # Evaluate Autoencoder
@@ -166,7 +168,8 @@ def evalulate_models(data_loader, model, config, client, plot_suffix="_Test", mo
     z =   z[int(dims[0] * config['training_data_ratio']):]
     y_train = clabels[:int(dims[0] * config['training_data_ratio'])] 
     clabels=  clabels[int(dims[0] * config['training_data_ratio']):] 
-    # print(z_train.shape,z.shape)
+    print(z_train.shape,z.shape)
+    # print(mode)
 
     # Visualise clusters
     # if (plot_suffix =="test"):
@@ -243,47 +246,51 @@ def evalulate_original(data_loader, config, client, plot_suffix="_Test", mode='t
         return z, clabels
 
 
-def main(config,client=1, nData=None):
+def main(config,client, nData=None):
     """Main function for evaluation
 
     Args:
         config (dict): Dictionary containing options and arguments.
 
     """
+    config = copy.deepcopy(config)
+    
     # Set directories (or create if they don't exist)
     set_dirs(config)
     # Get data loader for first dataset.
     ds_loader = Loader(config, dataset_name=config["dataset"], drop_last=False, client=client)
     # Add the number of features in a dataset as the first dimension of the model
     config = update_config_with_model_dims(ds_loader, config)
+
+
     # Start evaluation
     return eval(ds_loader, config, client, nData)
 
 
-if __name__ == "__main__":
-    # Get parser / command line arguments
-    args = get_arguments()
-    # Get configuration file
-    config = get_config(args)
-    # Overwrite the parent folder name for saving results
-    config["framework"] = config["dataset"]
-    # Turn off valiation
-    config["validate"] = False
-    # Get all of available training set for evaluation (i.e. no need for validation set)
-    # config["training_data_ratio"] = 1.0
-    # Turn off noise when evaluating the performance
-    config["add_noise"] = False
-    # Summarize config and arguments on the screen as a sanity check
-    # print_config_summary(config, args)
-    # --If True, start of MLFlow for experiment tracking:
-    if config["mlflow"]:
-        # Experiment name
-        experiment_name = "Give_Your_Experiment_A_Name"
-        mlflow.set_experiment(experiment_name=experiment_name + "_" + str(args.experiment))
-        # Start a new mlflow run
-        with mlflow.start_run():
-            # Run the main with or without profiler
-            run_with_profiler(main, config) if config["profile"] else main(config)
-    else:
-        # Run the main with or without profiler
-        run_with_profiler(main, config) if config["profile"] else main(config)
+# if __name__ == "__main__":
+#     # Get parser / command line arguments
+#     args = get_arguments()
+#     # Get configuration file
+#     config = get_config(args)
+#     # Overwrite the parent folder name for saving results
+#     config["framework"] = config["dataset"]
+#     # Turn off valiation
+#     config["validate"] = False
+#     # Get all of available training set for evaluation (i.e. no need for validation set)
+#     # config["training_data_ratio"] = 1.0
+#     # Turn off noise when evaluating the performance
+#     config["add_noise"] = False
+#     # Summarize config and arguments on the screen as a sanity check
+#     # print_config_summary(config, args)
+#     # --If True, start of MLFlow for experiment tracking:
+#     if config["mlflow"]:
+#         # Experiment name
+#         experiment_name = "Give_Your_Experiment_A_Name"
+#         mlflow.set_experiment(experiment_name=experiment_name + "_" + str(args.experiment))
+#         # Start a new mlflow run
+#         with mlflow.start_run():
+#             # Run the main with or without profiler
+#             run_with_profiler(main, config) if config["profile"] else main(config)
+#     else:
+#         # Run the main with or without profiler
+#         run_with_profiler(main, config) if config["profile"] else main(config)

@@ -337,22 +337,31 @@ class CFL:
         prefix = self.options['prefix']
 
         """Used to save model parameters."""
-        for model_name in self.model_dict:
-            # Save only the parameters (state_dict)
-            th.save(self.model_dict[model_name].state_dict(), 
+        for model_name, model in self.model_dict.items():
+            # # Save only the parameters (state_dict)
+            th.save(model.state_dict(), 
                     self._model_path + "/" + model_name + "_" + prefix + ".pth")
+            #save all model
+            # th.save(self.model_dict[model_name], 
+            #     self._model_path + "/" + model_name + "_" + prefix + ".pth")
         print("Done with saving model parameters.")
 
     def load_models(self, client):
         prefix = self.options['prefix']
+        # print((self._model_path , "/" , model_name , "_" , prefix , ".pth"))
 
         """Used to load model parameters saved at the end of the training."""
 
-        for model_name in self.model_dict:
+        for model_name, model in self.model_dict.items():
             # Load the parameters (state_dict) into the model
-            model = th.load(self._model_path + "/" + model_name + "_" + prefix + ".pth", map_location=self.device)
-            self.model_dict[model_name].eval()  # Set the model to evaluation mode
-            print(f"--{model_name} parameters are loaded")
+            model.load_state_dict(th.load(self._model_path + "/" + model_name + "_" + prefix + ".pth", map_location=self.device))
+            # model = th.load(self._model_path + "/" + model_name + "_" + prefix + ".pth", map_location=self.device)
+
+            # load all model
+            # model = th.load(self._model_path + "/" + model_name + "_" + prefix + ".pth")
+
+            model.eval()  # Set the model to evaluation mode
+            print(f"--{model_name} parameters are loaded--")
         # print("Done with loading model parameters.")
 
 

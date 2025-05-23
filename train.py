@@ -31,9 +31,30 @@ class Server:
         self.config = config
 
     def aggregate_models(self, client_models):
+        aggregated_params = {}
         for k in self.global_dict.keys():
             param_stack = [client.get_model_params()[k].float() for client in client_models]
-            self.global_dict[k] = torch.stack(param_stack).mean(0)
+            
+            # Check if parameters are identical
+            # are_identical = True
+            # first_params = param_stack[0]
+            # for i in range(1, len(param_stack)):
+            #     if not torch.all(torch.eq(param_stack[i], first_params)):
+            #         are_identical = False
+            #         break
+                    
+            # if are_identical:
+            #     print(f"\nParameters are identical across clients for layer {k}")
+            #     # Print some sample values and their gradients
+            #     print(f"Sample values from {k}:")
+            #     print(param_stack[i], first_params)
+     
+            aggregated_params[k] = torch.stack(param_stack).mean(0)
+        
+        self.global_dict = aggregated_params
+        return aggregated_params
+
+
 
     def distribute_model(self):
         return self.global_dict
@@ -42,6 +63,14 @@ class Server:
 class Client:
     def __init__(self, model, dataloader, client_number):
         self.model = copy.deepcopy(model)
+        if id(self.model) == id(model):
+            print(f"Warning: Client {client_number} model is not a deep copy!")
+        
+        # Verify encoder parameters are different
+        for p1, p2 in zip(self.model.encoder.parameters(), model.encoder.parameters()):
+            if id(p1) == id(p2):
+                print(f"Warning: Client {client_number} shares parameters with global model!")
+
         self.dataloader = copy.deepcopy(dataloader)
         self.client_number = copy.deepcopy(client_number)
         self.slice = islice(self.dataloader, 0, None)
@@ -49,19 +78,21 @@ class Client:
 
     def train(self):
         try:
-            x, _ = next(self.data_iter)  # Fetch the next batch
+            x, _ = next(self.data_iter)
         except StopIteration:
-            # If the iterator is exhausted, reinitialize it
             self.data_iter = iter(self.dataloader)
             x, _ = next(self.data_iter)
             
-        idx = torch.randperm(x.shape[0])  # Replace np.random.permutation with torch.randperm
-        x = x[idx].to(self.model.device)  # Ensure data is on the correct device
+        # Store parameters before training
+        old_params = {k: v.clone() for k, v in self.model.encoder.state_dict().items()}
+        
+        idx = torch.randperm(x.shape[0])
+        x = x[idx].to(self.model.device)
 
         self.model.optimizer_ae.zero_grad()
         tloss, closs, rloss, zloss = self.model.fit(x)
 
-        # Append losses to the model's loss dictionary
+        # Update losses
         self.model.loss["tloss_o"].append(tloss.item())
         self.model.loss["tloss_b"].append(tloss.item())
         self.model.loss["closs_b"].append(closs.item())
@@ -69,8 +100,21 @@ class Client:
         self.model.loss["zloss_b"].append(zloss.item())
 
         tloss.backward()
+        self.model.optimizer_ae.step()
+
+        # Verify parameters changed
+        changed = False
+        for k, old_v in old_params.items():
+            new_v = self.model.encoder.state_dict()[k]
+            if not torch.all(torch.eq(old_v, new_v)):
+                changed = True
+                break
+        if not changed:
+            print(f"Warning: Training did not change parameters for client {self.client_number}")
+
         self.tloss = tloss
         return tloss
+
 
     def poison_model(self, scale):
         # Scale up the weights significantly to affect the global model
@@ -80,24 +124,47 @@ class Client:
     def get_model_params(self):
         return copy.deepcopy(self.model.encoder.state_dict())
 
-    def step(self):
-        self.model.optimizer_ae.step()
+    # def step(self):
+    #     self.model.optimizer_ae.zero_grad()
+    #     self.tloss.backward()
+    #     self.model.optimizer_ae.step()
 
     def set_model(self, params):
+        old_params = {k: v.clone() for k, v in self.model.encoder.state_dict().items()}
         self.model.encoder.load_state_dict(params)
+        
+        # Verify parameters were updated
+        changed = False
+        for k, old_v in old_params.items():
+            new_v = self.model.encoder.state_dict()[k]
+            if not torch.all(torch.eq(old_v, new_v)):
+                changed = True
+                break
+        if not changed:
+            print(f"Warning: Model parameters were not updated for client {self.client_number}")
+
 
 
 def run(config, save_weights, poison):
+    config = copy.deepcopy(config)
     ds_loader = Loader(config, dataset_name=config["dataset"], client=0)
     config = update_config_with_model_dims(ds_loader, config)
     global_model = CFL(config)
     server = Server(global_model,config)
     clients = []
 
-    poison_clients = random.sample(range(config["fl_cluster"]), int(config["fl_cluster"] * config['poisonClient'])) if poison else []
+    poison_clients = random.sample(
+        range(config["fl_cluster"]), 
+        int(config["fl_cluster"] * config['malClient'])
+    ) if config['malClient'] > 0.0 else []
     print('Warning: Poisoning applied to clients:', poison_clients)
 
     for clt in range(config["fl_cluster"]):
+        prefix = (f"Cl-{clt}-{config['epochs']}e-{config['fl_cluster']}fl-"
+                 f"{config['malClient']}mc-{config['attack_type']}_at-"
+                 f"{config['randomLevel']}rl-{config['dataset']}")
+        config.update({"prefix":prefix})
+
         loader = Loader(config, dataset_name=config["dataset"], client=clt).trainFL_loader
         client = Client(global_model, loader, clt)
         client.poison = clt in poison_clients
@@ -110,13 +177,13 @@ def run(config, save_weights, poison):
             for client in clients:
                 tloss += client.train().item()
                 if client.poison:
-                    client.poison_model(config['poisonLevel'])
+                    client.poison_model(config['attack_scale'])
 
-            server.aggregate_models(clients, rnd=config['randomClient'])
+            server.aggregate_models(clients)
 
             for client in clients:
                 client.set_model(server.distribute_model())
-                client.step()
+                # client.step()
                 client.model.loss["tloss_e"].append(sum(client.model.loss["tloss_b"][-total_batches:]) / total_batches)
 
         print(f'Epoch {epoch}, Loss: {tloss / (config["fl_cluster"] * total_batches):.4f}')
@@ -128,8 +195,7 @@ def run(config, save_weights, poison):
         if save_weights:
             model.save_weights(n)
 
-        prefix = f"Client-{n}-{config['epochs']}e-{config['fl_cluster']}fl-{config['poisonClient']}pc-" \
-                 f"{config['poisonLevel']}pl-{config['randomLevel']}rl-{config['dataset']}"
+        prefix = config['prefix']
         with open(model._results_path + f"/config_{prefix}.yml", 'w') as config_file:
             yaml.dump(config, config_file, default_flow_style=False)
 
@@ -146,7 +212,7 @@ def main(config):
     })
 
     run(config, save_weights=True, poison=config['poison'])
-    # eval.main(copy.deepcopy(config))
+    eval.main(copy.deepcopy(config))
 
 
 if __name__ == "__main__":
