@@ -68,7 +68,7 @@ class RobustServer(Server):
         list_paramNorm = []
         for client in client_models:
             params = client.get_model_params()
-            paramNorm = [torch.norm(params[k]) for k in params.keys()]
+            paramNorm = [torch.norm(params[k].float()) for k in params.keys()]
             list_paramNorm.append(paramNorm)
         all_norms = torch.stack(sum(list_paramNorm, [])).detach().cpu().numpy()
 
