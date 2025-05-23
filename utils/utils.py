@@ -84,7 +84,11 @@ def get_runtime_and_model_config(args):
         with open(fileDefault, "r") as file:
             config = yaml.safe_load(file)
     except Exception as e:
-        sys.exit("Error reading runtime config file")
+        # sys.exit("Error reading runtime config file")
+        print("Warning: Error reading runtime config file, default configuration is being used")
+        fileDefault = "./config/default.yaml"
+        with open(fileDefault, "r") as file:
+            config = yaml.safe_load(file)
     # Define the data specific config file
     config["model_config"] = args.dataset
     # Copy dataset names to config to use later
@@ -104,7 +108,11 @@ def update_config_with_model(config):
         with open(fileDefault, "r") as file:
             model_config = yaml.safe_load(file)
     except Exception as e:
-        sys.exit("Error reading model config file")
+        # sys.exit("Error reading model config file")
+        print("Warning: Error reading runtime config file, default configuration is being used")
+        fileDefault = "./config/default.yaml"
+        with open(fileDefault, "r") as file:
+            model_config = yaml.safe_load(file)
     config.update(model_config)
     return config
 
@@ -115,7 +123,11 @@ def get_runtime_and_model_config_with_dataset_name(dataset):
         with open("./config/runtime.yaml", "r") as file:
             config = yaml.safe_load(file)
     except Exception as e:
-        sys.exit("Error reading runtime config file")
+        # sys.exit("Error reading runtime config file")
+        print("Warning: Error reading runtime config file, default configuration is being used")
+        fileDefault = "./config/default.yaml"
+        with open(fileDefault, "r") as file:
+            config = yaml.safe_load(file)
     # Define the data specific config file
     config["model_config"] = dataset
     # Copy dataset names to config to use later
