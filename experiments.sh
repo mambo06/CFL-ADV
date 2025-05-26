@@ -27,7 +27,7 @@ source activate /scratch/user/uqaginan/RQ3/
 dataset=$1
 echo "Experiemnts on dataset: $dataset"
 
-attackType="scale,model_replacement,gradient_ascent,targeted"
+attackType="gradient_ascent,oke"
 malClient="0.25,0.5,0.75"
 randomLevel="1,0.25,0.5,0.75"
 
