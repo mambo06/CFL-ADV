@@ -1,0 +1,423 @@
+Experiemnts on dataset: income
+python -W ignore adv_train.py -d income -e 50 -c 6
+Config Used : ./config/income.yaml
+Building the models for training and evaluation in CFL framework...
+Warning: Poisoning applied to clients: []
+Attack type: scale
+Epoch 0, Loss: 6.6241
+Epoch 1, Loss: 4.2177
+Epoch 2, Loss: 4.3007
+Epoch 3, Loss: 2.8431
+Epoch 4, Loss: 2.1323
+Epoch 5, Loss: 1.3468
+Epoch 6, Loss: 4.4993
+Epoch 7, Loss: 1.8296
+Epoch 8, Loss: 1.0645
+Epoch 9, Loss: 0.8431
+Epoch 10, Loss: 0.7303
+Epoch 11, Loss: 2.3606
+Epoch 12, Loss: 1.3116
+Epoch 13, Loss: 0.7506
+Epoch 14, Loss: 0.6423
+Epoch 15, Loss: 1.0151
+Epoch 16, Loss: 1.0172
+Epoch 17, Loss: 0.6118
+Epoch 18, Loss: 0.5540
+Epoch 19, Loss: 0.5171
+Epoch 20, Loss: 0.4887
+Epoch 21, Loss: 0.4662
+Epoch 22, Loss: 0.4478
+Epoch 23, Loss: 0.4324
+Epoch 24, Loss: 0.4183
+Epoch 25, Loss: 0.4065
+Epoch 26, Loss: 1.7852
+Epoch 27, Loss: 0.9315
+Epoch 28, Loss: 0.5210
+Epoch 29, Loss: 0.4627
+Epoch 30, Loss: 0.4349
+Epoch 31, Loss: 0.4184
+Epoch 32, Loss: 0.4062
+Epoch 33, Loss: 0.3966
+Epoch 34, Loss: 0.3886
+Epoch 35, Loss: 1.6901
+Epoch 36, Loss: 0.6823
+Epoch 37, Loss: 0.4634
+Epoch 38, Loss: 0.4279
+Epoch 39, Loss: 0.4109
+Epoch 40, Loss: 0.3996
+Epoch 41, Loss: 1.4602
+Epoch 42, Loss: 0.7188
+Epoch 43, Loss: 0.4730
+Epoch 44, Loss: 0.4347
+Epoch 45, Loss: 1.1874
+Epoch 46, Loss: 0.4807
+Epoch 47, Loss: 0.4270
+Epoch 48, Loss: 0.4097
+Epoch 49, Loss: 0.3983
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Building the models for training and evaluation in CFL framework...
+--encoder parameters are loaded--
+ Evaluate embeddings dataset
+(37986, 1024) (0, 1024)
+python -W ignore adv_train.py -d income -e 50 -rl 1 -mc 0.25 -at scale -c 6
+Config Used : ./config/income.yaml
+Building the models for training and evaluation in CFL framework...
+Warning: Poisoning applied to clients: [0]
+Attack type: scale
+Epoch 0, Loss: 16.0256
+Epoch 1, Loss: 17.5613
+Epoch 2, Loss: 20.9294
+Epoch 3, Loss: 25.3051
+Epoch 4, Loss: 26.3202
+Epoch 5, Loss: 25.3915
+Epoch 6, Loss: 25.6075
+Epoch 7, Loss: 25.5667
+Epoch 8, Loss: 26.3778
+Epoch 9, Loss: 24.9583
+Epoch 10, Loss: 28.8289
+Epoch 11, Loss: 30.1386
+Epoch 12, Loss: 24.8091
+Epoch 13, Loss: 27.0888
+Epoch 14, Loss: 23.6972
+Epoch 15, Loss: 21.8589
+Epoch 16, Loss: 21.1903
+Epoch 17, Loss: 23.4482
+Epoch 18, Loss: 21.4951
+Epoch 19, Loss: 21.7839
+Epoch 20, Loss: 21.8965
+Epoch 21, Loss: 21.9240
+Epoch 22, Loss: 22.0534
+Epoch 23, Loss: 21.3993
+Epoch 24, Loss: 21.6925
+Epoch 25, Loss: 22.1182
+Epoch 26, Loss: 21.0545
+Epoch 27, Loss: 21.6705
+Epoch 28, Loss: 21.8586
+Epoch 29, Loss: 21.7893
+Epoch 30, Loss: 22.0804
+Epoch 31, Loss: 22.5792
+Epoch 32, Loss: 21.8705
+Epoch 33, Loss: 22.9622
+Epoch 34, Loss: 22.6356
+Epoch 35, Loss: 24.7952
+Epoch 36, Loss: 25.6120
+Epoch 37, Loss: 30.4756
+Epoch 38, Loss: 31.3504
+Epoch 39, Loss: 31.4732
+Epoch 40, Loss: 30.9963
+Epoch 41, Loss: 26.9074
+Epoch 42, Loss: 25.5674
+Epoch 43, Loss: 31.6261
+Epoch 44, Loss: 30.2698
+Epoch 45, Loss: 25.9109
+Epoch 46, Loss: 25.9302
+Epoch 47, Loss: 25.4833
+Epoch 48, Loss: 25.5478
+Epoch 49, Loss: 22.8795
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Building the models for training and evaluation in CFL framework...
+--encoder parameters are loaded--
+ Evaluate embeddings dataset
+(37986, 1024) (0, 1024)
+python -W ignore adv_train.py -d income -e 50 -rl 1 -mc 0.25 -at model_replacement -c 6
+Config Used : ./config/income.yaml
+Building the models for training and evaluation in CFL framework...
+Warning: Poisoning applied to clients: [0]
+Attack type: model_replacement
+Epoch 0, Loss: 6.6241
+Epoch 1, Loss: 4.2177
+Epoch 2, Loss: 4.3007
+Epoch 3, Loss: 2.8431
+Epoch 4, Loss: 2.1323
+Epoch 5, Loss: 1.3468
+Epoch 6, Loss: 4.4993
+Epoch 7, Loss: 1.8296
+Epoch 8, Loss: 1.0645
+Epoch 9, Loss: 0.8431
+Epoch 10, Loss: 0.7303
+Epoch 11, Loss: 2.3606
+Epoch 12, Loss: 1.3116
+Epoch 13, Loss: 0.7506
+Epoch 14, Loss: 0.6423
+Epoch 15, Loss: 1.0151
+Epoch 16, Loss: 1.0172
+Epoch 17, Loss: 0.6118
+Epoch 18, Loss: 0.5540
+Epoch 19, Loss: 0.5171
+Epoch 20, Loss: 0.4887
+Epoch 21, Loss: 0.4662
+Epoch 22, Loss: 0.4478
+Epoch 23, Loss: 0.4324
+Epoch 24, Loss: 0.4183
+Epoch 25, Loss: 0.4065
+Epoch 26, Loss: 1.7852
+Epoch 27, Loss: 0.9315
+Epoch 28, Loss: 0.5210
+Epoch 29, Loss: 0.4627
+Epoch 30, Loss: 0.4349
+Epoch 31, Loss: 0.4184
+Epoch 32, Loss: 0.4062
+Epoch 33, Loss: 0.3966
+Epoch 34, Loss: 0.3886
+Epoch 35, Loss: 1.6901
+Epoch 36, Loss: 0.6823
+Epoch 37, Loss: 0.4634
+Epoch 38, Loss: 0.4279
+Epoch 39, Loss: 0.4109
+Epoch 40, Loss: 0.3996
+Epoch 41, Loss: 1.4602
+Epoch 42, Loss: 0.7188
+Epoch 43, Loss: 0.4730
+Epoch 44, Loss: 0.4347
+Epoch 45, Loss: 1.1874
+Epoch 46, Loss: 0.4807
+Epoch 47, Loss: 0.4270
+Epoch 48, Loss: 0.4097
+Epoch 49, Loss: 0.3983
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Building the models for training and evaluation in CFL framework...
+--encoder parameters are loaded--
+ Evaluate embeddings dataset
+(37986, 1024) (0, 1024)
+python -W ignore adv_train.py -d income -e 50 -rl 1 -mc 0.25 -at direction -c 6
+Config Used : ./config/income.yaml
+Building the models for training and evaluation in CFL framework...
+Warning: Poisoning applied to clients: [0]
+Attack type: direction
+python -W ignore adv_train.py -d income -e 50 -rl 1 -mc 0.25 -at gradient_ascent -c 6
+Config Used : ./config/income.yaml
+Building the models for training and evaluation in CFL framework...
+Warning: Poisoning applied to clients: [0]
+Attack type: gradient_ascent
+Epoch 0, Loss: 56.6677
+Epoch 1, Loss: 37326958768469.9453
+Epoch 2, Loss: 161476496346563348436877312.0000
+Epoch 3, Loss: inf
+python -W ignore adv_train.py -d income -e 50 -rl 1 -mc 0.25 -at targeted -c 6
+Config Used : ./config/income.yaml
+Building the models for training and evaluation in CFL framework...
+Warning: Poisoning applied to clients: [0]
+Attack type: targeted
+Epoch 0, Loss: 6.6241
+Epoch 1, Loss: 4.2177
+Epoch 2, Loss: 4.3007
+Epoch 3, Loss: 2.8431
+Epoch 4, Loss: 2.1323
+Epoch 5, Loss: 1.3468
+Epoch 6, Loss: 4.4993
+Epoch 7, Loss: 1.8296
+Epoch 8, Loss: 1.0645
+Epoch 9, Loss: 0.8431
+Epoch 10, Loss: 0.7303
+Epoch 11, Loss: 2.3606
+Epoch 12, Loss: 1.3116
+Epoch 13, Loss: 0.7506
+Epoch 14, Loss: 0.6423
+Epoch 15, Loss: 1.0151
+Epoch 16, Loss: 1.0172
+Epoch 17, Loss: 0.6118
+Epoch 18, Loss: 0.5540
+Epoch 19, Loss: 0.5171
+Epoch 20, Loss: 0.4887
+Epoch 21, Loss: 0.4662
+Epoch 22, Loss: 0.4478
+Epoch 23, Loss: 0.4324
+Epoch 24, Loss: 0.4183
+Epoch 25, Loss: 0.4065
+Epoch 26, Loss: 1.7852
+Epoch 27, Loss: 0.9315
+Epoch 28, Loss: 0.5210
+Epoch 29, Loss: 0.4627
+Epoch 30, Loss: 0.4349
+Epoch 31, Loss: 0.4184
+Epoch 32, Loss: 0.4062
+Epoch 33, Loss: 0.3966
+Epoch 34, Loss: 0.3886
+Epoch 35, Loss: 1.6901
+Epoch 36, Loss: 0.6823
+Epoch 37, Loss: 0.4634
+Epoch 38, Loss: 0.4279
+Epoch 39, Loss: 0.4109
+Epoch 40, Loss: 0.3996
+Epoch 41, Loss: 1.4602
+Epoch 42, Loss: 0.7188
+Epoch 43, Loss: 0.4730
+Epoch 44, Loss: 0.4347
+Epoch 45, Loss: 1.1874
+Epoch 46, Loss: 0.4807
+Epoch 47, Loss: 0.4270
+Epoch 48, Loss: 0.4097
+Epoch 49, Loss: 0.3983
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Building the models for training and evaluation in CFL framework...
+--encoder parameters are loaded--
+ Evaluate embeddings dataset
+(37986, 1024) (0, 1024)
+python -W ignore adv_train.py -d income -e 50 -rl 1 -mc 0.5 -at scale -c 6
+Config Used : ./config/income.yaml
+Building the models for training and evaluation in CFL framework...
+Warning: Poisoning applied to clients: [0, 2, 5]
+Attack type: scale
+Epoch 0, Loss: 47.0843
+Epoch 1, Loss: 42.3065
+Epoch 2, Loss: 42.3747
+Epoch 3, Loss: 42.3717
+Epoch 4, Loss: 42.8402
+Epoch 5, Loss: 42.0850
+Epoch 6, Loss: 42.1788
+Epoch 7, Loss: 42.2774
+Epoch 8, Loss: 42.2563
+Epoch 9, Loss: 41.6799
+Epoch 10, Loss: 42.6525
+Epoch 11, Loss: 41.6699
+Epoch 12, Loss: 41.6332
+Epoch 13, Loss: 42.7013
+Epoch 14, Loss: 41.5687
+Epoch 15, Loss: 41.2875
+Epoch 16, Loss: 41.6438
+Epoch 17, Loss: 41.3911
+Epoch 18, Loss: 41.4605
+Epoch 19, Loss: 41.1540
+Epoch 20, Loss: 41.7746
+Epoch 21, Loss: 41.8545
+Epoch 22, Loss: 42.0350
+Epoch 23, Loss: 42.1743
+Epoch 24, Loss: 41.7889
+Epoch 25, Loss: 41.1271
+Epoch 26, Loss: 41.7927
+Epoch 27, Loss: 41.7164
+Epoch 28, Loss: 41.4914
+Epoch 29, Loss: 43.0757
+Epoch 30, Loss: 41.5885
+Epoch 31, Loss: 41.7892
+Epoch 32, Loss: 42.0144
+Epoch 33, Loss: 41.7748
+Epoch 34, Loss: 42.2629
+Epoch 35, Loss: 41.7952
+Epoch 36, Loss: 41.0922
+Epoch 37, Loss: 41.3056
+Epoch 38, Loss: 41.7227
+Epoch 39, Loss: 41.1083
+Epoch 40, Loss: 41.2312
+Epoch 41, Loss: 41.9176
+Epoch 42, Loss: 41.0969
+Epoch 43, Loss: 41.2367
+Epoch 44, Loss: 40.8570
+Epoch 45, Loss: 41.6497
+Epoch 46, Loss: 41.2113
+Epoch 47, Loss: 42.1590
+Epoch 48, Loss: 42.0368
+Epoch 49, Loss: 41.0195
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Building the models for training and evaluation in CFL framework...
+--encoder parameters are loaded--
+ Evaluate embeddings dataset
+(37986, 1024) (0, 1024)
+python -W ignore adv_train.py -d income -e 50 -rl 1 -mc 0.5 -at model_replacement -c 6
+Config Used : ./config/income.yaml
+Building the models for training and evaluation in CFL framework...
+Warning: Poisoning applied to clients: [0, 2, 5]
+Attack type: model_replacement
+Epoch 0, Loss: 6.6241
+Epoch 1, Loss: 4.2177
+Epoch 2, Loss: 4.3007
+Epoch 3, Loss: 2.8431
+Epoch 4, Loss: 2.1323
+Epoch 5, Loss: 1.3468
+Epoch 6, Loss: 4.4993
+Epoch 7, Loss: 1.8296
+Epoch 8, Loss: 1.0645
+Epoch 9, Loss: 0.8431
+Epoch 10, Loss: 0.7303
+Epoch 11, Loss: 2.3606
+Epoch 12, Loss: 1.3116
+Epoch 13, Loss: 0.7506
+Epoch 14, Loss: 0.6423
+Epoch 15, Loss: 1.0151
+Epoch 16, Loss: 1.0172
+Epoch 17, Loss: 0.6118
+Epoch 18, Loss: 0.5540
+Epoch 19, Loss: 0.5171
+Epoch 20, Loss: 0.4887
+Epoch 21, Loss: 0.4662
+Epoch 22, Loss: 0.4478
+Epoch 23, Loss: 0.4324
+Epoch 24, Loss: 0.4183
+Epoch 25, Loss: 0.4065
+Epoch 26, Loss: 1.7852
+Epoch 27, Loss: 0.9315
+Epoch 28, Loss: 0.5210
+Epoch 29, Loss: 0.4627
+Epoch 30, Loss: 0.4349
+Epoch 31, Loss: 0.4184
+Epoch 32, Loss: 0.4062
+Epoch 33, Loss: 0.3966
+Epoch 34, Loss: 0.3886
+Epoch 35, Loss: 1.6901
+Epoch 36, Loss: 0.6823
+Epoch 37, Loss: 0.4634
+Epoch 38, Loss: 0.4279
+Epoch 39, Loss: 0.4109
+Epoch 40, Loss: 0.3996
+Epoch 41, Loss: 1.4602
+Epoch 42, Loss: 0.7188
+Epoch 43, Loss: 0.4730
+Epoch 44, Loss: 0.4347
+Epoch 45, Loss: 1.1874
+Epoch 46, Loss: 0.4807
+Epoch 47, Loss: 0.4270
+Epoch 48, Loss: 0.4097
+Epoch 49, Loss: 0.3983
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Done with saving model parameters.
+Building the models for training and evaluation in CFL framework...
+--encoder parameters are loaded--
+ Evaluate embeddings dataset
+(37986, 1024) (0, 1024)
+python -W ignore adv_train.py -d income -e 50 -rl 1 -mc 0.5 -at direction -c 6
+Config Used : ./config/income.yaml
+Building the models for training and evaluation in CFL framework...
+Warning: Poisoning applied to clients: [0, 2, 5]
+Attack type: direction
+python -W ignore adv_train.py -d income -e 50 -rl 1 -mc 0.5 -at gradient_ascent -c 6
+Config Used : ./config/income.yaml
+Building the models for training and evaluation in CFL framework...
+Warning: Poisoning applied to clients: [0, 2, 5]
+Attack type: gradient_ascent
+Epoch 0, Loss: 10931893799092654906015744.0000
+python -W ignore adv_train.py -d income -e 50 -rl 1 -mc 0.5 -at targeted -c 6
+Config Used : ./config/income.yaml
+Building the models for training and evaluation in CFL framework...
+Warning: Poisoning applied to clients: [0, 2, 5]
+Attack type: targeted
+Epoch 0, Loss: 6.6241
+Epoch 1, Loss: 4.2177

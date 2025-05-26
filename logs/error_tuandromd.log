@@ -1,0 +1,732 @@
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 356, in main
+    info = json.loads(info_path.read_text())
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1266, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1252, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/pathlib.py", line 1120, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'data/tuandromd/info.json'

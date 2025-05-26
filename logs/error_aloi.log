@@ -1,0 +1,4 @@
+experiments.sh: line 24: module: command not found
+
+EnvironmentLocationNotFound: Not a conda environment: /scratch/user/uqaginan/RQ3
+

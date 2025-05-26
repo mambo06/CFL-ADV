@@ -188,6 +188,7 @@ class AttackManager:
         self.target_layer = config.get('target_layer', None)
         self.noise_std = config.get('noise_std', 0.1)
         self.target_direction = None
+        self.gradient_scale = 0.01
         
     def generate_target_direction(self, param_shape):
         """Generate a malicious target direction for direction-based attacks"""
@@ -224,7 +225,7 @@ class MaliciousClient(Client):
         """Direction-based attack implementation"""
         for key, param in params.items():
             target_direction = self.attack_manager.generate_target_direction(param.shape)
-            params[key] = target_direction * torch.norm(param)
+            params[key] = target_direction * torch.norm(param.float())
         return params
 
     def gradient_ascent_attack(self, params):
@@ -234,7 +235,7 @@ class MaliciousClient(Client):
         
         for key, param in params.items():
             gradient = param - self.original_params[key]
-            params[key] = param + gradient * self.attack_manager.attack_scale
+            params[key] = param + gradient * self.attack_manager.gradient_scale
         return params
 
     def targeted_attack(self, params):

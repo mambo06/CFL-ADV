@@ -1,0 +1,26 @@
+Experiemnts on dataset: adult
+python -W ignore adv_train.py -d adult -e 50 -c 6
+Config Used : ./config/adult.yaml
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Number of classes changed from 2 to 2 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+Building the models for training and evaluation in CFL framework...
+Warning: Poisoning applied to clients: []
+Attack type: scale
+python -W ignore adv_train.py -d adult -e 50 -rl 1 -mc 0.25 -at scale -c 6
+Config Used : ./config/adult.yaml
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Number of classes changed from 2 to 2 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+Building the models for training and evaluation in CFL framework...
+Warning: Poisoning applied to clients: [0]
+Attack type: scale
+python -W ignore adv_train.py -d adult -e 50 -rl 1 -mc 0.25 -at model_replacement -c 6
+Config Used : ./config/adult.yaml
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Number of classes changed from 2 to 2 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+Building the models for training and evaluation in CFL framework...
+Warning: Poisoning applied to clients: [0]
+Attack type: model_replacement
+python -W ignore adv_train.py -d adult -e 50 -rl 1 -mc 0.25 -at direction -c 6
+Config Used : ./config/adult.yaml
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Number of classes changed from 2 to 2 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+Building the models for training and evaluation in CFL framework...
+Warning: Poisoning applied to clients: [0]
+Attack type: direction
+python -W ignore adv_train.py -d adult -e 50 -rl 1 -mc 0.25 -at gradient_ascent -c 6

@@ -1,0 +1,64 @@
+  0%|          | 0/127 [00:00<?, ?it/s]  0%|          | 0/127 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 368, in main
+    run(copy.deepcopy(config), save_weights=True)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 326, in run
+    server.aggregated_method(clients)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 71, in trimmed_aggregate
+    paramNorm = [torch.norm(params[k]) for k in params.keys()]
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 71, in <listcomp>
+    paramNorm = [torch.norm(params[k]) for k in params.keys()]
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/site-packages/torch/functional.py", line 1501, in norm
+    return torch.linalg.vector_norm(input, 2, _dim, keepdim, dtype=dtype)
+RuntimeError: linalg.vector_norm: Expected a floating point or complex tensor as input. Got Long
+  0%|          | 0/127 [00:00<?, ?it/s]  0%|          | 0/127 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 368, in main
+    run(copy.deepcopy(config), save_weights=True)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 326, in run
+    server.aggregated_method(clients)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 71, in trimmed_aggregate
+    paramNorm = [torch.norm(params[k]) for k in params.keys()]
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 71, in <listcomp>
+    paramNorm = [torch.norm(params[k]) for k in params.keys()]
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/site-packages/torch/functional.py", line 1501, in norm
+    return torch.linalg.vector_norm(input, 2, _dim, keepdim, dtype=dtype)
+RuntimeError: linalg.vector_norm: Expected a floating point or complex tensor as input. Got Long
+  0%|          | 0/127 [00:00<?, ?it/s]  0%|          | 0/127 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 368, in main
+    run(copy.deepcopy(config), save_weights=True)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 326, in run
+    server.aggregated_method(clients)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 71, in trimmed_aggregate
+    paramNorm = [torch.norm(params[k]) for k in params.keys()]
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 71, in <listcomp>
+    paramNorm = [torch.norm(params[k]) for k in params.keys()]
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/site-packages/torch/functional.py", line 1501, in norm
+    return torch.linalg.vector_norm(input, 2, _dim, keepdim, dtype=dtype)
+RuntimeError: linalg.vector_norm: Expected a floating point or complex tensor as input. Got Long
+  0%|          | 0/127 [00:00<?, ?it/s]  0%|          | 0/127 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 376, in <module>
+    main(config)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 368, in main
+    run(copy.deepcopy(config), save_weights=True)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 326, in run
+    server.aggregated_method(clients)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 70, in trimmed_aggregate
+    params = client.get_model_params()
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 270, in get_model_params
+    params = self.apply_attack(params)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 259, in apply_attack
+    return self.direction_attack(params)
+  File "/scratch/user/uqaginan/CFL-ADV/adv_train.py", line 227, in direction_attack
+    params[key] = target_direction * torch.norm(param)
+  File "/scratch/user/uqaginan/RQ3/lib/python3.9/site-packages/torch/functional.py", line 1501, in norm
+    return torch.linalg.vector_norm(input, 2, _dim, keepdim, dtype=dtype)
+RuntimeError: linalg.vector_norm: Expected a floating point or complex tensor as input. Got Long
