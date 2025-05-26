@@ -1,6 +1,7 @@
 data*
 logs/
 results/
+results_/
 resultsNoPearson/
 resultsPearson/
 __pycache__/
