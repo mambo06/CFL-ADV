@@ -17,8 +17,8 @@ outdir="logs"
 mkdir -p $outdir
 
 # Redirect output and error to files
-exec 1> "${outdir}/out_${1}.log"
-exec 2> "${outdir}/error_${1}.log"
+exec 1> "${outdir}/out1_${1}.log"
+exec 2> "${outdir}/error1_${1}.log"
 
 
 module load anaconda3
