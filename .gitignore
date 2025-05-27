@@ -8,7 +8,6 @@ __pycache__/
 # *.ipynb
 *.csv
 *.png
-*.ipynb
 # *.sh
 .DS_Store
 *.pckl
