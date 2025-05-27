@@ -5,7 +5,7 @@ results_/
 resultsNoPearson/
 resultsPearson/
 __pycache__/
-*.ipynb
+# *.ipynb
 *.csv
 *.png
 *.ipynb
