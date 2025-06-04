@@ -1,9 +1,7 @@
 data*
 logs/
-results/
-results_/
-resultsNoPearson/
-resultsPearson/
+results*
+# results
 __pycache__/
 # *.ipynb
 *.csv
