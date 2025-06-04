@@ -17,8 +17,8 @@ outdir="logs"
 mkdir -p $outdir
 
 # Redirect output and error to files
-exec 1> "${outdir}/out1_${1}.log"
-exec 2> "${outdir}/error1_${1}.log"
+exec 1> "${outdir}/out_${1}.log"
+exec 2> "${outdir}/error_${1}.log"
 
 
 module load anaconda3
@@ -27,7 +27,7 @@ source activate /scratch/user/uqaginan/RQ3/
 dataset=$1
 echo "Experiemnts on dataset: $dataset"
 
-attackType="gradient_ascent,oke"
+attackType="scale,model_replacement,direction,gradient_ascent,targeted"
 malClient="0.25,0.5,0.75"
 randomLevel="1,0.25,0.5,0.75"
 
