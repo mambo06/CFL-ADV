@@ -6,7 +6,7 @@ __pycache__/
 # *.ipynb
 *.csv
 *.png
-# *.sh
+*.sh
 .DS_Store
 *.pckl
 *.rst
