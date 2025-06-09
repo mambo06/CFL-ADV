@@ -30,10 +30,10 @@ class DefenseManager:
         
     def validate_update(self, param_update, historical_params, clip_threshold):
         """Validates parameter updates using multiple defense mechanisms"""
-        # if self.detect_scale_attack(param_update, clip_threshold):
-        #     return False
-        # if self.detect_direction_attack(param_update, historical_params):
-        #     return False
+        if self.detect_scale_attack(param_update, clip_threshold):
+            return False
+        if self.detect_direction_attack(param_update, historical_params):
+            return False
         return True
     
     def detect_scale_attack(self, param_update, clip_threshold):
