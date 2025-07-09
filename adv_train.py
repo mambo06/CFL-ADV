@@ -27,7 +27,10 @@ def run(config, save_weights):
     ds_loader = Loader(config, dataset_name=config["dataset"], client=0)
     config = update_config_with_model_dims(ds_loader, config)
     global_model = CFL(config)
-    server = RobustServer(global_model, config)
+    server = RobustServer(
+        model = global_model, 
+        config= config
+        )
     clients = []
     
     # Initialize attack manager
@@ -49,9 +52,20 @@ def run(config, save_weights):
         loader = Loader(config, dataset_name=config["dataset"], client=clt).trainFL_loader
         # Use MaliciousClient for poisoned clients
         if clt in poison_clients:
-            client = MaliciousClient(global_model, loader, clt, config, attack_manager)
+            client = MaliciousClient(
+                model = global_model, 
+                dataloader = loader, 
+                client_number = clt, 
+                config = config, 
+                attack_manager = attack_manager
+                )
         else:
-            client = SecureClient(global_model, loader, clt, config)
+            client = SecureClient(
+                 model = global_model, 
+                 dataloader = loader, 
+                 client_number = clt, 
+                 config = config
+                 )
         client.poison = clt in poison_clients
         clients.append(client)
 
@@ -63,9 +77,7 @@ def run(config, save_weights):
             for client in clients:
                 tloss += client.train().item()
 
-            
-          
-            server.aggregated_method(clients)
+            server.aggregate(client_models = clients)
 
             for client in clients:
                 client.set_model(server.distribute_model())
@@ -97,6 +109,7 @@ def main(config):
     info_path = Path(f'data/{config["dataset"]}/info.json')
     info = json.loads(info_path.read_text())
     
+    # attack
     config.update({
         'task_type': info['task_type'],
         'cat_policy': info['cat_policy'],
@@ -105,6 +118,21 @@ def main(config):
         "attack_probability": 1.0,
         "target_layer": "encoder.layer1",
         "noise_std": 0.1,
+    })
+
+    # defense
+    config.update({
+        'defense_type': ['trimmed_mean','adaptive','multi_krum','geometric_median', 'foolsgold', 'momentum'][0],
+        'trim_ratio': 0.1,
+        'random_level': 0.8,
+        'history_size': 10,
+        'num_groups': 5,
+        'eps': 0.5,
+        'min_samples': 3,
+        'num_subsets': 5,
+        'subset_size': 0.8,
+        'window_size': 10,
+        'detection_threshold': 2.0
     })
 
     run(copy.deepcopy(config), save_weights=True)

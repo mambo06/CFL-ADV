@@ -140,8 +140,8 @@ class Client:
             if not torch.all(torch.eq(old_v, new_v)):
                 changed = True
                 break
-        if not changed:
-            print(f"Warning: Model parameters were not updated for client {self.client_number}")
+        # if not changed:
+        #     print(f"Warning: Model parameters were not updated for client {self.client_number}")
 
 
 
