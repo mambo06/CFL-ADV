@@ -37,18 +37,16 @@ python -W ignore adv_train.py -d $dataset -e 50 -c 6
 
 for dt in $(echo $defense_type | tr ',' ' ')
 do
-	for rl in $(echo $randomLevel | tr ',' ' ')
+	for mc in $(echo $malClient | tr ',' ' ')
 	do
-		for mc in $(echo $malClient | tr ',' ' ')
+		for at in $(echo $attackType | tr ',' ' ')
 		do
-			for at in $(echo $attackType | tr ',' ' ')
-			do
-				echo "python -W ignore adv_train.py -d $dataset -e 50 -rl $rl -mc $mc -at $at -c 6"
-				python -W ignore adv_train.py -d $dataset -e 50 -rl $rl -mc $mc -at $at -c 6
-			done
-
+			echo "python -W ignore adv_train.py -d $dataset -e 50 -mc $mc -at $at -c 6 -dt $dt"
+			python -W ignore adv_train.py -d $dataset -e 50 -mc $mc -at $at -c 6 -dt $dt
 		done
 
 	done
+
+	
 done
 

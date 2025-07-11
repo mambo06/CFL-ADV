@@ -44,6 +44,11 @@ def run(config, save_weights):
     print(f'Warning: Poisoning applied to clients: {poison_clients}')
     print(f'Attack type: {attack_manager.attack_type.value}')
     print(f'Defense type: {config["defense_type"]}')
+    print(f"Experiments: {config['epochs']}e-{config['fl_cluster']}fl-"
+        f"{config['malClient']}mc-{config['attack_type']}_at-"
+        f"{config['defense_type']}_dt-"
+        f"{config['randomLevel']}rl-{config['dataset']}"
+        )
 
     for clt in range(config["fl_cluster"]):
         prefix = (f"Cl-{clt}-{config['epochs']}e-{config['fl_cluster']}fl-"

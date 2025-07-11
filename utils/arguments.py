@@ -45,9 +45,8 @@ def get_arguments():
     parser.add_argument("-c", "--client", type=int, default=4, )
     parser.add_argument("-s", "--sampling", type=float, default=1, )
 
-    parser.add_argument("-as", "--attack_scale", type=float, default=0.2, )
     parser.add_argument("-mc", "--malClient", type=float, default=0, )
-    parser.add_argument("-rl", "--randomLevel", type=float, default=1, )
+    parser.add_argument("-rl", "--randomLevel", type=float, default=0.8, )
     parser.add_argument("-at", "--attack_type", type=str, default='scale', )
     parser.add_argument("-dt", "--defense_type", type=str, default='random', )
     
@@ -75,12 +74,11 @@ def get_config(args):
     config['fl_cluster'] = args.client
     config['sampling'] = args.sampling
 
-    config['attack_scale'] = args.attack_scale
     config['malClient'] = args.malClient
     config['randomLevel'] = args.randomLevel
     config['attack_type'] = args.attack_type
     config['defense_type'] = args.defense_type
-    
+
     return config
 
 
