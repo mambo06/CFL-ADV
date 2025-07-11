@@ -2,6 +2,7 @@ from typing import List, Dict, Any, Optional
 import torch
 import numpy as np
 import random
+import torch.nn.functional as F
 
 class BaseDefense:
     def __init__(self, config: Dict[str, Any]):
@@ -158,7 +159,8 @@ class MultiKrumDefense(BaseDefense):
         for i in range(n):
             for j in range(n):
                 if i != j:
-                    dist = sum(torch.norm(updates[i][k] - updates[j][k])**2 
+                    # Convert tensors to float before calculating norm
+                    dist = sum(torch.norm(updates[i][k].float() - updates[j][k].float())**2 
                              for k in updates[i].keys())
                     distances[i,j] = dist
                     
@@ -175,84 +177,119 @@ class MultiKrumDefense(BaseDefense):
         # Average selected updates
         aggregated = {}
         for k in updates[0].keys():
-            aggregated[k] = torch.stack([upd[k] for upd in selected_updates]).mean(0)
+            # Convert to float before stacking
+            aggregated[k] = torch.stack([upd[k].float() for upd in selected_updates]).mean(0)
         return aggregated
+
 
 class GeometricMedianDefense(BaseDefense):
     def __init__(self, config: Dict[str, Any]):
         super().__init__(config)
-        self.num_iterations = config.get('num_iterations', 5)
-        
+        self.num_iters = config.get('num_iters', 10)
+        self.eps = config.get('eps', 1e-5)
+
     def aggregate(self, updates: List[Dict[str, torch.Tensor]]) -> Dict[str, torch.Tensor]:
-        median = {}
-        
         # Initialize with mean
+        median = {}
         for k in updates[0].keys():
-            median[k] = torch.stack([upd[k] for upd in updates]).mean(0)
-        
-        # Iterative refinement
-        for _ in range(self.num_iterations):
+            # Convert to float before stacking and taking mean
+            median[k] = torch.stack([upd[k].float() for upd in updates]).mean(0)
+            
+        # Weiszfeld algorithm
+        for _ in range(self.num_iters):
             weights = []
             for update in updates:
-                dist = sum(torch.norm(update[k] - median[k]) 
-                          for k in median.keys())
-                weights.append(1 / max(dist, 1e-8))
+                dist = sum(torch.norm(update[k].float() - median[k])**2 
+                          for k in update.keys())**0.5
+                weights.append(1 / (dist + self.eps))
                 
-            weights = torch.tensor(weights)
-            weights = weights / weights.sum()
+            weights = torch.tensor(weights) / sum(weights)
             
             # Update median
+            new_median = {}
             for k in median.keys():
-                stacked = torch.stack([upd[k] for upd in updates])
-                median[k] = (stacked * weights.view(-1,1,1)).sum(0)
-                
+                # Convert to float before weighted sum
+                new_median[k] = sum(w * upd[k].float() 
+                                  for w, upd in zip(weights, updates))
+            median = new_median
+            
         return median
 
 class FoolsGoldDefense(BaseDefense):
     def __init__(self, config: Dict[str, Any]):
         super().__init__(config)
         self.memory = {}
-        
+        self.epsilon = 1e-5
+
     def aggregate(self, updates: List[Dict[str, torch.Tensor]]) -> Dict[str, torch.Tensor]:
-        n = len(updates)
+        n_clients = len(updates)
         
-        # Calculate cosine similarities
-        similarities = torch.zeros(n, n)
-        for i in range(n):
-            for j in range(i+1, n):
-                sim = self._compute_update_similarity(updates[i], updates[j])
-                similarities[i,j] = similarities[j,i] = sim
+        # Initialize memory if needed
+        if not self.memory:
+            for k in updates[0].keys():
+                self.memory[k] = torch.zeros((n_clients,) + tuple(updates[0][k].shape),
+                                          dtype=torch.float32)
+
+        # Update memory
+        for i, update in enumerate(updates):
+            for k in update.keys():
+                # Ensure the update tensor has the correct shape
+                update_tensor = update[k].float()
+                if len(update_tensor.shape) != len(self.memory[k].shape[1:]):
+                    # Reshape if necessary (handle the case where tensor has extra dimensions)
+                    if len(update_tensor.shape) > len(self.memory[k].shape[1:]):
+                        # If update has extra dimensions, squeeze them out
+                        update_tensor = update_tensor.squeeze()
+                    else:
+                        # If update needs more dimensions, unsqueeze as needed
+                        while len(update_tensor.shape) < len(self.memory[k].shape[1:]):
+                            update_tensor = update_tensor.unsqueeze(0)
                 
+                # Ensure the shapes match exactly
+                if update_tensor.shape != self.memory[k].shape[1:]:
+                    update_tensor = update_tensor.view(self.memory[k].shape[1:])
+                
+                self.memory[k][i] = update_tensor
+
+        # Calculate cosine similarities
+        cs = torch.zeros((n_clients, n_clients))
+        for i in range(n_clients):
+            for j in range(n_clients):
+                if i != j:
+                    similarity = 0
+                    magnitude_i = 0
+                    magnitude_j = 0
+                    for k in self.memory.keys():
+                        similarity += torch.sum(self.memory[k][i] * self.memory[k][j])
+                        magnitude_i += torch.sum(self.memory[k][i] ** 2)
+                        magnitude_j += torch.sum(self.memory[k][j] ** 2)
+                    cs[i][j] = similarity / ((magnitude_i * magnitude_j) ** 0.5 + self.epsilon)
+
         # Calculate weights using FoolsGold algorithm
-        weights = self._get_foolsgold_weights(similarities)
-        
-        # Weighted aggregation
+        weights = torch.ones(n_clients)
+        for i in range(n_clients):
+            cs_max = torch.max(cs[i])
+            for j in range(n_clients):
+                if i != j:
+                    weights[i] *= (1 - cs[i][j] / cs_max)
+
+        # Normalize weights
+        weights = weights / (torch.sum(weights) + self.epsilon)
+
+        # Aggregate updates using calculated weights
         aggregated = {}
         for k in updates[0].keys():
-            stacked = torch.stack([upd[k] for upd in updates])
-            aggregated[k] = (stacked * weights.view(-1,1,1)).sum(0)
-            
+            # Initialize with the correct shape
+            aggregated[k] = torch.zeros_like(updates[0][k].float())
+            for i, update in enumerate(updates):
+                update_tensor = update[k].float()
+                # Ensure shapes match before adding
+                if update_tensor.shape != aggregated[k].shape:
+                    update_tensor = update_tensor.view(aggregated[k].shape)
+                aggregated[k] += weights[i] * update_tensor
+
         return aggregated
-    
-    def _compute_update_similarity(self, update1: Dict[str, torch.Tensor], 
-                                 update2: Dict[str, torch.Tensor]) -> torch.Tensor:
-        """Compute cosine similarity between two updates"""
-        v1 = torch.cat([update1[k].flatten() for k in update1.keys()])
-        v2 = torch.cat([update2[k].flatten() for k in update2.keys()])
-        return F.cosine_similarity(v1.unsqueeze(0), v2.unsqueeze(0))[0]
-    
-    def _get_foolsgold_weights(self, similarities: torch.Tensor) -> torch.Tensor:
-        """Calculate FoolsGold weights based on cosine similarities"""
-        n = similarities.size(0)
-        weights = torch.ones(n)
-        
-        # Penalize similar updates
-        for i in range(n):
-            similar_indices = similarities[i] > 0.5
-            if similar_indices.sum() > 1:
-                weights[i] *= 1.0 / similar_indices.sum()
-                
-        return F.softmax(weights, dim=0)
+
 
 class MomentumDefense(BaseDefense):
     def __init__(self, config: Dict[str, Any]):
@@ -264,7 +301,7 @@ class MomentumDefense(BaseDefense):
         # First aggregate using mean
         aggregated = {}
         for k in updates[0].keys():
-            aggregated[k] = torch.stack([upd[k] for upd in updates]).mean(0)
+            aggregated[k] = torch.stack([upd[k].float() for upd in updates]).mean(0)
             
         # Apply momentum
         if not self.velocity:

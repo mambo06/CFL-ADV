@@ -43,11 +43,14 @@ def run(config, save_weights):
 
     print(f'Warning: Poisoning applied to clients: {poison_clients}')
     print(f'Attack type: {attack_manager.attack_type.value}')
+    print(f'Defense type: {config["defense_type"]}')
 
     for clt in range(config["fl_cluster"]):
         prefix = (f"Cl-{clt}-{config['epochs']}e-{config['fl_cluster']}fl-"
                  f"{config['malClient']}mc-{config['attack_type']}_at-"
-                 f"{config['randomLevel']}rl-{config['dataset']}")
+                 f"{config['defense_type']}_dt"
+                 f"{config['randomLevel']}rl-{config['dataset']}"
+                 )
         config.update({"prefix":prefix})
         loader = Loader(config, dataset_name=config["dataset"], client=clt).trainFL_loader
         # Use MaliciousClient for poisoned clients
@@ -97,9 +100,11 @@ def run(config, save_weights):
         if save_weights:
             model.save_weights(n)
 
-        prefix = (f"Client-{n}-{config['epochs']}e-{config['fl_cluster']}fl-"
-                 f"{config['malClient']}pc-{config['attack_type']}-"
-                 f"{config['attack_scale']}-{config['dataset']}")
+        prefix = (f"Cl-{clt}-{config['epochs']}e-{config['fl_cluster']}fl-"
+                 f"{config['malClient']}mc-{config['attack_type']}_at-"
+                 f"{config['defense_type']}_dt"
+                 f"{config['randomLevel']}rl-{config['dataset']}"
+                 )
         
         with open(model._results_path + f"/config_{prefix}.yml", 'w') as config_file:
             yaml.dump(config, config_file, default_flow_style=False)
@@ -118,11 +123,22 @@ def main(config):
         "attack_probability": 1.0,
         "target_layer": "encoder.layer1",
         "noise_std": 0.1,
+        # "attack_type": ['scale', 'model_replacement','direction', 'gradient_ascent', 'targeted'][0],
+        # "malClient": 0.5
     })
 
     # defense
     config.update({
-        'defense_type': ['trimmed_mean','adaptive','multi_krum','geometric_median', 'foolsgold', 'momentum'][0],
+        # 'defense_type': 
+        #     [
+        #     "multi_krum", 
+        #     "geometric_median", 
+        #     "foolsgold", 
+        #     "trimmed_mean", 
+        #     "momentum", 
+        #     "random", 
+        #     "robust"
+        #     ][-2],
         'trim_ratio': 0.1,
         'random_level': 0.8,
         'history_size': 10,
@@ -136,7 +152,7 @@ def main(config):
     })
 
     run(copy.deepcopy(config), save_weights=True)
-    eval.main(copy.deepcopy(config))
+    # eval.main(copy.deepcopy(config))
 
 
 if __name__ == "__main__":

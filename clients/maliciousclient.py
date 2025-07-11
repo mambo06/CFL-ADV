@@ -1,6 +1,7 @@
 from train import Client
 import random
 import torch
+from attacks.attackmanager import AttackType
 
 class MaliciousClient(Client):
     def __init__(self, model, dataloader, client_number, config, attack_manager):

@@ -14,6 +14,7 @@ from .defense import (
     RobustDefense
 )
 
+
 class DefenseType(Enum):
     MULTI_KRUM = "multi_krum"
     GEOMETRIC_MEDIAN = "geometric_median"

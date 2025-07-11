@@ -27,6 +27,7 @@ source activate /scratch/user/uqaginan/RQ3/
 dataset=$1
 echo "Experiemnts on dataset: $dataset"
 
+defense_type="multi_krum, geometric_median, foolsgold, trimmed_mean, momentum, random,robust"
 attackType="scale,model_replacement,direction,gradient_ascent,targeted"
 malClient="0.25,0.5,0.75"
 randomLevel="1,0.25,0.5,0.75"
@@ -34,16 +35,20 @@ randomLevel="1,0.25,0.5,0.75"
 echo "python -W ignore adv_train.py -d $dataset -e 50 -c 6"
 python -W ignore adv_train.py -d $dataset -e 50 -c 6
 
-for rl in $(echo $randomLevel | tr ',' ' ')
+for dt in $(echo $defense_type | tr ',' ' ')
 do
-	for mc in $(echo $malClient | tr ',' ' ')
+	for rl in $(echo $randomLevel | tr ',' ' ')
 	do
-		for at in $(echo $attackType | tr ',' ' ')
+		for mc in $(echo $malClient | tr ',' ' ')
 		do
-			echo "python -W ignore adv_train.py -d $dataset -e 50 -rl $rl -mc $mc -at $at -c 6"
-			python -W ignore adv_train.py -d $dataset -e 50 -rl $rl -mc $mc -at $at -c 6
+			for at in $(echo $attackType | tr ',' ' ')
+			do
+				echo "python -W ignore adv_train.py -d $dataset -e 50 -rl $rl -mc $mc -at $at -c 6"
+				python -W ignore adv_train.py -d $dataset -e 50 -rl $rl -mc $mc -at $at -c 6
+			done
+
 		done
 
 	done
-
 done
+

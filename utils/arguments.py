@@ -21,29 +21,23 @@ def get_arguments():
     parser = ArgParser()
 
     # Dataset can be provided via command line
-    parser.add_argument("-d", "--dataset", type=str, default="mnist", 
-                        help='Name of the dataset to use. It should have a config file with the same name.')
+    parser.add_argument("-d", "--dataset", type=str, default="mnist", help='Name of the dataset to use. It should have a config file with the same name.')
     
     # Whether to use GPU.
-    parser.add_argument("-g", "--gpu", dest='gpu', action='store_true', 
-                        help='Used to assign GPU as the device, assuming that GPU is available')
+    parser.add_argument("-g", "--gpu", dest='gpu', action='store_true', help='Used to assign GPU as the device, assuming that GPU is available')
 
     # Whether to use MAC GPU.
-    parser.add_argument("-m", "--mps", dest='mps', action='store_true', 
-                        help='Used to assign MAC M1 GPU as the device, assuming that GPU is available')
+    parser.add_argument("-m", "--mps", dest='mps', action='store_true',  help='Used to assign MAC M1 GPU as the device, assuming that GPU is available')
     
-    parser.add_argument("-ng", "--no_gpu", dest='gpu', action='store_false', 
-                        help='Used to assign CPU as the device')
+    parser.add_argument("-ng", "--no_gpu", dest='gpu', action='store_false', help='Used to assign CPU as the device')
     
     parser.set_defaults(gpu=True)
     
     # GPU device number as in "cuda:0". Defaul is 0.
-    parser.add_argument("-dn", "--device_number", type=str, default='0', 
-                        help='Defines which GPU to use. It is 0 by default')
+    parser.add_argument("-dn", "--device_number", type=str, default='0', help='Defines which GPU to use. It is 0 by default')
     
     # Experiment number if MLFlow is on
-    parser.add_argument("-ex", "--experiment", type=int, default=1, 
-                        help='Used as a suffix to the name of MLFlow experiments if MLFlow is being used')
+    parser.add_argument("-ex", "--experiment", type=int, default=1, help='Used as a suffix to the name of MLFlow experiments if MLFlow is being used')
 
     ## addition here
     parser.add_argument("-lc", "--local", dest='local', action='store_true')
@@ -55,6 +49,7 @@ def get_arguments():
     parser.add_argument("-mc", "--malClient", type=float, default=0, )
     parser.add_argument("-rl", "--randomLevel", type=float, default=1, )
     parser.add_argument("-at", "--attack_type", type=str, default='scale', )
+    parser.add_argument("-dt", "--defense_type", type=str, default='random', )
     
     # Return parser arguments
     return parser.parse_args()
@@ -84,7 +79,8 @@ def get_config(args):
     config['malClient'] = args.malClient
     config['randomLevel'] = args.randomLevel
     config['attack_type'] = args.attack_type
-
+    config['defense_type'] = args.defense_type
+    
     return config
 
 
