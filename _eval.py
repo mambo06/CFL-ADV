@@ -29,8 +29,10 @@ def eval(data_loader, config, client, nData):
 
     """
     prefix = (f"Cl-{client}-{config['epochs']}e-{config['fl_cluster']}fl-"
-                 f"{config['malClient']}mc-{config['attack_type']}_at-"
-                 f"{config['randomLevel']}rl-{config['dataset']}")
+             f"{config['malClient']}mc-{config['attack_type']}_at-"
+             f"{config['defense_type']}_dt-"
+             f"{config['randomLevel']}rl-{config['dataset']}"
+             )
     config.update({"prefix":prefix})
 
     # Instantiate Autoencoder model

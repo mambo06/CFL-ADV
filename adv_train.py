@@ -48,7 +48,7 @@ def run(config, save_weights):
     for clt in range(config["fl_cluster"]):
         prefix = (f"Cl-{clt}-{config['epochs']}e-{config['fl_cluster']}fl-"
                  f"{config['malClient']}mc-{config['attack_type']}_at-"
-                 f"{config['defense_type']}_dt"
+                 f"{config['defense_type']}_dt-"
                  f"{config['randomLevel']}rl-{config['dataset']}"
                  )
         config.update({"prefix":prefix})
@@ -102,7 +102,7 @@ def run(config, save_weights):
 
         prefix = (f"Cl-{clt}-{config['epochs']}e-{config['fl_cluster']}fl-"
                  f"{config['malClient']}mc-{config['attack_type']}_at-"
-                 f"{config['defense_type']}_dt"
+                 f"{config['defense_type']}_dt-"
                  f"{config['randomLevel']}rl-{config['dataset']}"
                  )
         
@@ -152,7 +152,7 @@ def main(config):
     })
 
     run(copy.deepcopy(config), save_weights=True)
-    # eval.main(copy.deepcopy(config))
+    eval.main(copy.deepcopy(config))
 
 
 if __name__ == "__main__":
