@@ -1,14 +1,11 @@
 data*
 logs/
-results/
-results_/
-resultsNoPearson/
-resultsPearson/
+results*
 __pycache__/
-# *.ipynb
+*.ipynb
 *.csv
 *.png
-# *.sh
+*.sh
 .DS_Store
 *.pckl
 *.rst

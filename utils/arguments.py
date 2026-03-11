@@ -21,7 +21,7 @@ def get_arguments():
     parser = ArgParser()
 
     # Dataset can be provided via command line
-    parser.add_argument("-d", "--dataset", type=str, default="mnist", 
+    parser.add_argument("-d", "--dataset", type=str, default="covtype", 
                         help='Name of the dataset to use. It should have a config file with the same name.')
     
     # Whether to use GPU.
@@ -47,7 +47,7 @@ def get_arguments():
 
     ## addition here
     parser.add_argument("-lc", "--local", dest='local', action='store_true')
-    parser.add_argument("-e", "--epoch", type=int, default=5,)
+    parser.add_argument("-e", "--epoch", type=int, default=1,)
     parser.add_argument("-c", "--client", type=int, default=4, )
     parser.add_argument("-s", "--sampling", type=float, default=1, )
 
