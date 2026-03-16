@@ -126,6 +126,7 @@ class TabularDataset(Dataset):
     def _join_data(cls, config, dataset_name, cat_policy='ohe', seed=int(9), normalization=False, norm="l1"):
         """Extract from the original joinData method to make it a class method"""
         dir_ = Path('data/'+ dataset_name + '/normal')
+        dir_ = Path('data/'+ dataset_name )
         y_train = np.load(dir_.joinpath('y_train.npy'))
         y_test = np.load(dir_.joinpath('y_test.npy'))
         y_val = np.load(dir_.joinpath('y_val.npy'))
