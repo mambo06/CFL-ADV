@@ -1,8 +1,9 @@
 data*
 logs*
 results*
+# results
 __pycache__/
-*.ipynb
+# *.ipynb
 *.csv
 *.png
 *.sh
