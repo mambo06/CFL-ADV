@@ -146,7 +146,7 @@ def linear_model_eval(config, z_train, y_train, suffix ,
 
 
         else:
-            clf = LogisticRegression( solver='lbfgs', C=c, multi_class='multinomial', max_iter=2000,)
+            clf = LogisticRegression( solver='lbfgs', C=c, max_iter=2000,)
             # clf = DecisionTreeClassifier(random_state=0,criterion='entropy',)
             # clf = RandomForestClassifier(criterion='log_loss', n_estimators=c, )
             # clf = Perceptron(tol=1e-3, random_state=0)        
