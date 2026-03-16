@@ -106,13 +106,13 @@ class TabularDataset(Dataset):
                     normalization=True, norm=config['norm']
                 )
             else:  # else data has been normalized
-                N_train = np.load('data/'+dataset_name + '/normal'+'/N_train.npy')
-                N_test = np.load('data/'+dataset_name + '/normal'+'/N_test.npy')
-                N_val = np.load('data/'+dataset_name + '/normal'+'/N_val.npy')
+                N_train = np.load('data/'+dataset_name + '/N_train.npy')
+                N_test = np.load('data/'+dataset_name + '/N_test.npy')
+                N_val = np.load('data/'+dataset_name + '/N_val.npy')
                 
-                y_train = np.load('data/'+dataset_name + '/normal'+'/y_train.npy')
-                y_test = np.load('data/'+dataset_name + '/normal'+'/y_test.npy')
-                y_val = np.load('data/'+dataset_name + '/normal'+'/y_val.npy')
+                y_train = np.load('data/'+dataset_name + '/y_train.npy')
+                y_test = np.load('data/'+dataset_name + '/y_test.npy')
+                y_val = np.load('data/'+dataset_name + '/y_val.npy')
             
             # Store all the loaded data in the cache
             cls._cached_data[cache_key] = {
