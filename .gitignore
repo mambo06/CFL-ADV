@@ -13,3 +13,4 @@ __pycache__/
 *.toml
 catboost_info/
 .ipynb_checkpoints/
+data
