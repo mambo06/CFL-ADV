@@ -296,4 +296,4 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file for
 
 ---
 
-**Made with ❤️ for secure federated learning**
+**Made with passion for secure federated learning**
