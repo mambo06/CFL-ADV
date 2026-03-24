@@ -1,443 +1,619 @@
-# https://github.com/AstraZeneca/SubTab
-
+"""
+Contrastive Federated Learning (CFL) Model
+Trains an Autoencoder with projection network using SubTab framework.
+Reference: https://github.com/AstraZeneca/SubTab
+"""
 
 import gc
 import itertools
 import os
+from typing import Dict, List, Tuple, Any, Optional
 
-# import numpy as np
 import pandas as pd
 import torch as th
-# from tqdm import tqdm
+from torch import Tensor
 
 from utils.loss_functionsV2 import JointLoss
 from utils.model_plot import save_loss_plot
 from utils.model_utils import AEWrapper
 from utils.utils import set_seed, set_dirs
 
-from torch.amp import autocast
-
+# Enable anomaly detection for debugging
 th.autograd.set_detect_anomaly(True)
 
 
-
-import random
-
+# ─── Main Model Class ───────────────────────────────────────────────────────
 
 class CFL:
     """
-    Model: Trains an Autoencoder with a Projection network, using SubTab framework.
+    Contrastive Federated Learning model with autoencoder and projection network.
+    
+    Implements SubTab framework for self-supervised learning on tabular data
+    with support for federated learning scenarios.
     """
 
-    def __init__(self, options):
-        """Class to train an autoencoder model with projection in SubTab framework.
-
-        Args:
-            options (dict): Configuration dictionary.
-
+    def __init__(self, options: Dict[str, Any]) -> None:
         """
-        # Get config
+        Initialize CFL model with configuration.
+        
+        Args:
+            options: Configuration dictionary containing model hyperparameters
+        """
         self.options = options
-        # Define which device to use: GPU, or CPU
         self.device = options["device"]
-        # Create empty lists and dictionary
-        self.model_dict, self.summary = {}, {}
-        # Set random seed
+        
+        # Initialize model storage
+        self.model_dict: Dict[str, th.nn.Module] = {}
+        self.summary: Dict[str, List] = {}
+        
+        # Set random seed for reproducibility
         set_seed(self.options)
-        # Set paths for results and initialize some arrays to collect data during training
+        
+        # Setup paths and directories
         self._set_paths()
-        # Set directories i.e. create ones that are missing.
         set_dirs(self.options)
-        # Set the condition if we need to build combinations of 2 out of projections. 
-        self.is_combination = self.options["contrastive_loss"] or self.options["distance_loss"]
-        # self.is_combination = True # set this to true cause z loss 0 ! code realted
-        # ------Network---------
-        # Instantiate networks
-        print("Building the models for training and evaluation in CFL framework...")
-        # Set Autoencoders i.e. setting loss, optimizer, and device assignment (GPU, or CPU)
+        
+        # Determine if we need subset combinations
+        self.is_combination = (
+            self.options["contrastive_loss"] or 
+            self.options["distance_loss"]
+        )
+        
+        # Build model components
+        print("[INFO] Building CFL model components...")
         self.set_autoencoder()
-        # Set scheduler (its use is optional)
         self._set_scheduler()
-        # Print out model architecture
-        # self.print_model_summary()
-        self.loss = {"tloss_b": [], "tloss_e": [], "vloss_e": [],
-                     "closs_b": [], "rloss_b": [], "zloss_b": [],
-                     "tloss_o": []}
+        
+        # Initialize loss tracking
+        self.loss = {
+            "tloss_b": [],  # Total loss per batch
+            "tloss_e": [],  # Total loss per epoch
+            "vloss_e": [],  # Validation loss per epoch
+            "closs_b": [],  # Contrastive loss per batch
+            "rloss_b": [],  # Reconstruction loss per batch
+            "zloss_b": [],  # Latent distance loss per batch
+            "tloss_o": []   # Original total loss
+        }
+        
         self.train_tqdm = None
-        # self.scaler = GradScaler()
+        
+        # Fisher information for continual learning (optional)
+        self.fisher_dict: Optional[Dict[str, Tensor]] = None
+        self.optpar_dict: Optional[Dict[str, Tensor]] = None
 
-    def get_loss(self):
-        return self.loss
 
-    def set_loss(self, loss):
-        self.loss = loss
+    # ─── Model Setup ────────────────────────────────────────────────────────
 
-    def set_autoencoder(self):
-        """Sets up the autoencoder model, optimizer, and loss"""
-        # Instantiate the model for the text Autoencoder
+    def set_autoencoder(self) -> None:
+        """Initialize autoencoder, optimizer, and loss function."""
+        # Create autoencoder wrapper
         self.encoder = AEWrapper(self.options)
-        # self.encoder = th.compile(AEWrapper(self.options)) #optime CPU intel/amd only
-        # Add the model and its name to a list to save, and load in the future
-        self.model_dict.update({"encoder": self.encoder})
-        # Assign autoencoder to a device
-        for _, model in self.model_dict.items(): model.to(self.device)
-        # Get model parameters
-        parameters = [model.parameters() for _, model in self.model_dict.items()]
-        # Joint loss including contrastive, reconstruction and distance losses
+        self.model_dict["encoder"] = self.encoder
+        
+        # Move models to device
+        for model in self.model_dict.values():
+            model.to(self.device)
+        
+        # Setup joint loss function
         self.joint_loss = JointLoss(self.options)
-        # Set optimizer for autoencoder
+        
+        # Setup optimizer
+        parameters = [model.parameters() for model in self.model_dict.values()]
         self.optimizer_ae = self._adam(parameters, lr=self.options["learning_rate"])
-        # Add items to summary to be used for reporting later
-        self.summary.update({"recon_loss": []})
+        
+        # Initialize summary
+        self.summary["recon_loss"] = []
 
-    def fit(self, data_loader):
-        x = data_loader
-        x = x.to(self.device)  
-        self.set_mode(mode="training") 
 
+    def _set_scheduler(self) -> None:
+        """Setup learning rate scheduler."""
+        self.scheduler = th.optim.lr_scheduler.StepLR(
+            self.optimizer_ae,
+            step_size=1,
+            gamma=0.99
+        )
+
+
+    # ─── Training ───────────────────────────────────────────────────────────
+
+    def fit(self, data_loader: Tensor) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
+        """
+        Perform one training step.
+        
+        Args:
+            data_loader: Input batch tensor
+            
+        Returns:
+            Tuple of (total_loss, contrastive_loss, recon_loss, latent_loss)
+        """
+        x = data_loader.to(self.device)
+        self.set_mode(mode="training")
+        
+        # Store original data for reconstruction target
         Xorig = self.process_batch(x, x)
-        # print(x.shape,Xorig.shape)
-        # print(Xorig.shape)  = torch [64, 784]
-
-        # Generate subsets with added noise -- labels are not used
-        x_tilde_list = self.subset_generator(x, mode="train") # partion data
-        # print(len(x_tilde_list),x_tilde_list[0].shape,x_tilde_list[-1].shape) # = 4 torch.Size([32, 343]) torch.Size([32, 343])
-
-        # If we use either contrastive and/or distance loss, we need to use combinations of subsets
+        
+        # Generate augmented subsets
+        x_tilde_list = self.subset_generator(x, mode="train")
+        
+        # Create combinations if needed for contrastive/distance loss
         if self.is_combination:
-            # Get combinations of subsets [(x1, x2), (x1, x3)...]
             x_tilde_list = self.get_combinations_of_subsets(x_tilde_list)
-        # print(len(x_tilde_list),x_tilde_list[0].shape,x_tilde_list[-1].shape) #= 6 torch.Size([64, 343]) torch.Size([64, 343])
-
-        # 0 - Update Autoencoder
-        tloss, closs, rloss, zloss = self.calculate_loss(x_tilde_list, Xorig) # work for FL
-        # print(z.shape, Xrecon.shape, Xorig.shape, tloss)
-
-        # # 1 - Update log message using epoch and batch numbers
-        # self.update_log(epoch, i)
-        # 2 - Clean-up for efficient memory usage
-        # gc.collect()
+        
+        # Compute losses
+        tloss, closs, rloss, zloss = self.calculate_loss(x_tilde_list, Xorig)
+        
         return tloss, closs, rloss, zloss
 
-    def validate_train(self,client,epoch, total_batches, validation_loader):
-        # print(f"Validating client : {client}")
-        # val_loss_s = 0 
-        # Validate every nth epoch. n=1 by default, but it can be changed in the config file
-        if epoch % self.options["nth_epoch"] == 0 and self.options["validate"]:
-            # Compute validation loss
-            # print("Compute validation loss")
-            val_loss_s = self.validate(validation_loader,total_batches)
 
-        return val_loss_s
-
-    def saveTrainParams(self, client):
-        prefix = self.options['prefix']
-
-        # Save plot of training and validation losses
-        save_loss_plot(self.loss, self._plots_path,prefix)
-        # Convert loss dictionary to a dataframe
-        loss_df = pd.DataFrame(dict([(k, pd.Series(v, dtype='float')) for k, v in self.loss.items()]))
-        # Save loss dataframe as csv file for later use
-        
-        loss_df.to_csv(self._loss_path + "/"+  prefix + "-losses.csv")
-
-    def validate(self, validation_loader, total_batches):
-        x = validation_loader
-        """Computes validation loss.
-
-        Args:
-            validation_loader (IterableDataset): Data loader for validation set.
-        Returns:
-            (float): validation loss
+    def calculate_loss(
+        self,
+        x_tilde_list: List[Tensor],
+        Xorig: Tensor
+    ) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
         """
-        with th.no_grad():
-            x_tilde_list = self.subset_generator(x)
-
-            if self.is_combination:
-                x_tilde_list = self.get_combinations_of_subsets(x_tilde_list)
-                
-            Xorig = self.process_batch(x, x)
-
-            val_loss = []
-                
-            for xi in x_tilde_list:
-
-                Xinput = xi if self.is_combination else self.process_batch(xi, xi)
+        Calculate losses across all subsets.
         
-                # Forwards pass
-                z, latent, Xrecon = self.encoder(Xinput)
-                # Compute losses
-                val_loss_s, _, _, _ = self.joint_loss(z, Xrecon, Xorig)
-                # Accumulate losses
-                val_loss.append(val_loss_s)
-
-                # Compute the validation loss for this batch
-            val_loss = sum(val_loss) / len(val_loss)
-
-        return val_loss
-    
-    def calculate_loss(self, x_tilde_list, Xorig):
-        # xi = xi[0] # single partition
-        # print(xi.shape)
+        Args:
+            x_tilde_list: List of augmented input subsets
+            Xorig: Original input for reconstruction target
+            
+        Returns:
+            Tuple of averaged (total, contrastive, reconstruction, latent) losses
+        """
         total_loss, contrastive_loss, recon_loss, zrecon_loss = [], [], [], []
-
-        # pass data through model
+        
         for xi in x_tilde_list:
+            # Prepare input
             Xinput = xi if self.is_combination else self.process_batch(xi, xi)
-            Xinput.to(self.device).float()
-
-            z, latent, Xrecon = self.encoder(Xinput) # trow this to federated learning
-            # If recontruct_subset is True, the output of decoder should be compared against subset (input to encoder)
-            Xorig = Xinput if self.options["reconstruction"] and self.options["reconstruct_subset"] else Xorig
+            Xinput = Xinput.to(self.device).float()
+            
+            # Forward pass
+            z, latent, Xrecon = self.encoder(Xinput)
+            
+            # Determine reconstruction target
+            if self.options["reconstruction"] and self.options["reconstruct_subset"]:
+                target = Xinput
+            else:
+                target = Xorig
+            
             # Compute losses
-            tloss, closs, rloss, zloss = self.joint_loss(z, Xrecon, Xorig)
-            # Accumulate losses
+            tloss, closs, rloss, zloss = self.joint_loss(z, Xrecon, target)
+            
+            # Accumulate
             total_loss.append(tloss)
             contrastive_loss.append(closs)
             recon_loss.append(rloss)
             zrecon_loss.append(zloss)
-
-        # Compute the average of losses
+        
+        # Average losses
         n = len(total_loss)
-        total_loss = sum(total_loss) / n
-        contrastive_loss = sum(contrastive_loss) / n
-        recon_loss = sum(recon_loss) / n
-        zrecon_loss = sum(zrecon_loss) / n
+        return (
+            sum(total_loss) / n,
+            sum(contrastive_loss) / n,
+            sum(recon_loss) / n,
+            sum(zrecon_loss) / n
+        )
 
-        return total_loss, contrastive_loss, recon_loss, zrecon_loss
 
-
-    def update_autoencoder(self, tloss, retain_graph=True): 
+    def update_autoencoder(self, tloss: Tensor, retain_graph: bool = True) -> None:
+        """
+        Backpropagate and update autoencoder parameters.
+        
+        Args:
+            tloss: Total loss tensor
+            retain_graph: Whether to retain computation graph
+        """
         self._update_model(tloss, self.optimizer_ae, retain_graph=retain_graph)
 
-    def get_combinations_of_subsets(self, x_tilde_list):
-                            
-        # Compute combinations of subsets [(x1, x2), (x1, x3)...]
-        subset_combinations = list(itertools.combinations(x_tilde_list, 2))
-        # List to store the concatenated subsets
-        concatenated_subsets_list = []
-        
-        # Go through combinations
-        for (xi, xj) in subset_combinations:
-            # Concatenate xi, and xj, and turn it into a tensor
-            Xbatch = self.process_batch(xi, xj)
-            # Add it to the list
-            concatenated_subsets_list.append(Xbatch)
-        concatenated_subsets_list = [
-        self.process_batch(xi, xj) for xi, xj in subset_combinations]
-        
-        # Return the list of combination of subsets
-        return concatenated_subsets_list
-        
-        
-    def mask_generator(self, p_m, x):
-        """Generate mask vector."""
-        mask = th.random.binomial(1, p_m, x.shape)
-        return mask
 
-    def subset_generator(self, x, mode="test", skip=[-1]):
+    # ─── Validation ─────────────────────────────────────────────────────────
+
+    def validate_train(
+        self,
+        client: int,
+        epoch: int,
+        total_batches: int,
+        validation_loader: Tensor
+    ) -> float:
+        """
+        Validate model during training.
         
+        Args:
+            client: Client ID
+            epoch: Current epoch number
+            total_batches: Total number of batches
+            validation_loader: Validation data
+            
+        Returns:
+            Validation loss (0.0 if validation is disabled)
+        """
+        if epoch % self.options["nth_epoch"] == 0 and self.options["validate"]:
+            return self.validate(validation_loader, total_batches)
+        return 0.0
+
+
+    def validate(self, validation_loader: Tensor, total_batches: int) -> float:
+        """
+        Compute validation loss.
+        
+        Args:
+            validation_loader: Validation data tensor
+            total_batches: Number of batches (unused but kept for compatibility)
+            
+        Returns:
+            Average validation loss
+        """
+        with th.no_grad():
+            x = validation_loader
+            x_tilde_list = self.subset_generator(x)
+            
+            if self.is_combination:
+                x_tilde_list = self.get_combinations_of_subsets(x_tilde_list)
+            
+            Xorig = self.process_batch(x, x)
+            val_losses = []
+            
+            for xi in x_tilde_list:
+                Xinput = xi if self.is_combination else self.process_batch(xi, xi)
+                
+                # Forward pass
+                z, latent, Xrecon = self.encoder(Xinput)
+                
+                # Compute loss
+                val_loss, _, _, _ = self.joint_loss(z, Xrecon, Xorig)
+                val_losses.append(val_loss)
+            
+            return sum(val_losses) / len(val_losses)
+
+
+    # ─── Data Augmentation ──────────────────────────────────────────────────
+
+    def subset_generator(
+        self,
+        x: Tensor,
+        mode: str = "test",
+        skip: List[int] = None
+    ) -> List[Tensor]:
+        """
+        Generate augmented subsets with optional noise.
+        
+        Args:
+            x: Input tensor
+            mode: "train" or "test" mode
+            skip: Indices to skip (unused)
+            
+        Returns:
+            List of augmented subset tensors
+        """
         n_subsets = self.options["n_subsets"]
-        n_column = self.options["dims"][0]
-        # n_column = x.shape[-1]
-        overlap = self.options["overlap"]
-        n_column_subset = int(n_column / n_subsets)
-        # Number of overlapping features between subsets
-        n_overlap = int(overlap * n_column_subset)
-        subset_column_list = [x.clone() for n in range(n_subsets)] 
         x_tilde_list = []
-        self.low = False 
-        for z, subset_column in enumerate(subset_column_list):
-            self.low = not self.low
-            x_bar = subset_column #[:, subset_column_idx]
+        
+        # Alternate masking ratio for diversity
+        use_high_mask = True
+        
+        for _ in range(n_subsets):
+            x_bar = x.clone()
+            
+            # Add noise if enabled
             if self.options["add_noise"]:
-                x_bar_noisy = self.generate_noisy_xbar(x_bar ).to(self.device)#,["swap_noise", "gaussian_noise", "zero_out"][z])
-
-                # Generate binary mask
+                x_bar_noisy = self.generate_noisy_xbar(x_bar).to(self.device)
+                
+                # Apply masking
                 p_m = self.options["masking_ratio"]
-                if self.low : p_m = 1 - p_m
+                if not use_high_mask:
+                    p_m = 1 - p_m
+                
                 mask = th.bernoulli(th.full(x_bar.shape, p_m)).to(self.device)
-
                 x_bar = x_bar * (1 - mask) + x_bar_noisy * mask
-
-            # Add the subset to the list   
+            
             x_tilde_list.append(x_bar)
-
+            use_high_mask = not use_high_mask
+        
         return x_tilde_list
 
-    def generate_noisy_xbar(self, x):
-        no, dim = x.shape
 
-        # Get noise type
+    def generate_noisy_xbar(self, x: Tensor) -> Tensor:
+        """
+        Generate noisy version of input.
+        
+        Args:
+            x: Input tensor
+            
+        Returns:
+            Noisy tensor based on configured noise type
+        """
+        no, dim = x.shape
         noise_type = self.options["noise_type"]
         noise_level = self.options["noise_level"]
-        if self.low : noise_level = 1 -  noise_level
-
-        # Initialize corruption array
-        x_bar = th.zeros([no, dim])
-
-        # Randomly (and column-wise) shuffle data
+        
         if noise_type == "swap_noise":
+            x_bar = th.zeros_like(x)
             for i in range(dim):
                 idx = th.randperm(no)
                 x_bar[:, i] = x[idx, i]
-        # Elif, overwrite x_bar by adding Gaussian noise to x
-
+        
         elif noise_type == "gaussian_noise":
-            x_bar = x + th.normal(float(th.mean(x)), noise_level, size=x.shape)
-
+            x_bar = x + th.normal(
+                float(th.mean(x)),
+                noise_level,
+                size=x.shape
+            )
+        
         else:
-            x_bar = x_bar
-
+            x_bar = th.zeros_like(x)
+        
         return x_bar
 
-    def clean_up_memory(self, losses):
-        """Deletes losses with attached graph, and cleans up memory"""
-        for loss in losses: del loss
-        gc.collect()
 
-    def process_batch(self, xi, xj):
-        """Concatenates two transformed inputs into one, and moves the data to the device as tensor"""
-        # Combine xi and xj into a single batch
-        Xbatch = th.cat((xi, xj), axis=0)
-        # Convert the batch to tensor and move it to where the model is
-        Xbatch = self._tensor(Xbatch)
-        # Return batches
-        return Xbatch
-
-    def update_log(self, client, epoch, batch):
-        """Updates the messages displayed during training and evaluation"""
-        # For the first epoch, add losses for batches since we still don't have loss for the epoch
-        if epoch < 1:
-            description = f"Losses per batch - Total:{self.loss['tloss_b'][-1]:.4f}"
-            description += f", X recon:{self.loss['rloss_b'][-1]:.4f}"
-            if self.options["contrastive_loss"]:
-                description += f", contrastive:{self.loss['closs_b'][-1]:.4f}"
-            if self.options["distance_loss"]:
-                description += f", z distance:{self.loss['zloss_b'][-1]:.6f}, Progress"
-        # For sub-sequent epochs, display only epoch losses.
-        else:
-            description = f"Epoch-{epoch} Total training loss:{self.loss['tloss_e'][-1]:.4f}"
-            description += f", val loss:{self.loss['vloss_e'][-1]:.4f}" if self.options["validate"] else ""
-            description += f" | Losses per batch - X recon:{self.loss['rloss_b'][-1]:.4f}"
-            if self.options["contrastive_loss"]:
-                description += f", contrastive:{self.loss['closs_b'][-1]:.4f}"
-            if self.options["distance_loss"]:
-                description += f", z distance:{self.loss['zloss_b'][-1]:.6f}, Progress"
-        # return description
-        # Update the displayed message
-        self.train_tqdm.set_description(description)
-
-    def set_mode(self, mode="training"):
-        """Sets the mode of the models, either as .train(), or .eval()"""
-        for _, model in self.model_dict.items():
-            model.train() if mode == "training" else model.eval()
-
-    def save_weights(self, client):
-        prefix = self.options['prefix']
-
-        """Used to save model parameters."""
-        for model_name, model in self.model_dict.items():
-            # # Save only the parameters (state_dict)
-            th.save(model.state_dict(), 
-                    self._model_path + "/" + model_name + "_" + prefix + ".pth")
-            #save all model
-            # th.save(self.model_dict[model_name], 
-            #     self._model_path + "/" + model_name + "_" + prefix + ".pth")
-        print("Done with saving model parameters.")
-
-    def load_models(self, client):
-        prefix = self.options['prefix']
-        # print((self._model_path , "/" , model_name , "_" , prefix , ".pth"))
-
-        """Used to load model parameters saved at the end of the training."""
-
-        for model_name, model in self.model_dict.items():
-            # Load the parameters (state_dict) into the model
-            model.load_state_dict(th.load(self._model_path + "/" + model_name + "_" + prefix + ".pth", map_location=self.device))
-            # model = th.load(self._model_path + "/" + model_name + "_" + prefix + ".pth", map_location=self.device)
-
-            # load all model
-            # model = th.load(self._model_path + "/" + model_name + "_" + prefix + ".pth")
-
-            model.eval()  # Set the model to evaluation mode
-            print(f"--{model_name} parameters are loaded--")
-        # print("Done with loading model parameters.")
-
-
-    def print_model_summary(self):
-        """Displays model architectures as a sanity check to see if the models are constructed correctly."""
-        # Summary of the model
-        description = f"{40 * '-'}Summary of the models (an Autoencoder and Projection network):{40 * '-'}\n"
-        description += f"{34 * '='}{self.options['model_mode'].upper().replace('_', ' ')} Model{34 * '='}\n"
-        description += f"{self.encoder}\n"
-        # Print model architecture
-        print(description)
-
-    def _update_model(self, loss, optimizer, retain_graph=True):
-        """Does backprop, and updates the model parameters
-
-        Args:
-            loss (): Loss containing computational graph
-            optimizer (torch.optim): Optimizer used during training
-            retain_graph (bool): If True, retains graph. Otherwise, it does not.
-
+    def get_combinations_of_subsets(self, x_tilde_list: List[Tensor]) -> List[Tensor]:
         """
-        # Reset optimizer
-        optimizer.zero_grad()
-        # Backward propagation to compute gradients
-        loss.backward(retain_graph=retain_graph)
-        # Update weights
-        optimizer.step()
-        th.empty_cache()
-
-    def _set_scheduler(self):
-        """Sets a scheduler for learning rate of autoencoder"""
-        # Set scheduler (Its use will be optional)
-        self.scheduler = th.optim.lr_scheduler.StepLR(self.optimizer_ae, step_size=1, gamma=0.99)
-
-    def _set_paths(self):
-        """ Sets paths to bse used for saving results at the end of the training"""
-        # Top results directory
-        self._results_path = os.path.join(self.options["paths"]["results"], self.options["framework"])
-        # Directory to save model
-        self._model_path = os.path.join(self._results_path, "training", self.options["model_mode"], "model")
-        # Directory to save plots as png files
-        self._plots_path = os.path.join(self._results_path, "training", self.options["model_mode"], "plots")
-        # Directory to save losses as csv file
-        self._loss_path = os.path.join(self._results_path, "training", self.options["model_mode"], "loss")
-
-    def _adam(self, params, lr=1e-4):
-        """Sets up AdamW optimizer using model params"""
-        return th.optim.AdamW(itertools.chain(*params), lr=lr, betas=(0.9, 0.999), eps=1e-07)
-
-    def _tensor(self, data):
-
-        return data.to(self.device).float()
-    def on_task_update(self, data_loader):
-        # Process data through the model to compute gradients
-        for data, _ in data_loader:
-            # Make sure to zero gradients before computing them
-            self.optimizer_ae.zero_grad()
-            
-            # Get losses
-            tloss, _, _, _ = self.fit(data)
-            
-            # Compute gradients
-            tloss.backward()
+        Create pairwise combinations of subsets.
         
+        Args:
+            x_tilde_list: List of subset tensors
+            
+        Returns:
+            List of concatenated subset pairs
+        """
+        subset_combinations = list(itertools.combinations(x_tilde_list, 2))
+        return [
+            self.process_batch(xi, xj)
+            for xi, xj in subset_combinations
+        ]
+
+
+    # ─── Utilities ──────────────────────────────────────────────────────────
+
+    def process_batch(self, xi: Tensor, xj: Tensor) -> Tensor:
+        """
+        Concatenate two tensors and move to device.
+        
+        Args:
+            xi: First tensor
+            xj: Second tensor
+            
+        Returns:
+            Concatenated tensor on device
+        """
+        Xbatch = th.cat((xi, xj), axis=0)
+        return self._tensor(Xbatch)
+
+
+    def set_mode(self, mode: str = "training") -> None:
+        """
+        Set model mode (train/eval).
+        
+        Args:
+            mode: "training" or "evaluation"
+        """
+        for model in self.model_dict.values():
+            if mode == "training":
+                model.train()
+            else:
+                model.eval()
+
+
+    def update_log(self, client: int, epoch: int, batch: int) -> None:
+        """
+        Update training progress display.
+        
+        Args:
+            client: Client ID
+            epoch: Current epoch
+            batch: Current batch
+        """
+        if epoch < 1:
+            desc = f"Losses - Total:{self.loss['tloss_b'][-1]:.4f}"
+            desc += f", Recon:{self.loss['rloss_b'][-1]:.4f}"
+            if self.options["contrastive_loss"]:
+                desc += f", Contrast:{self.loss['closs_b'][-1]:.4f}"
+            if self.options["distance_loss"]:
+                desc += f", Z-dist:{self.loss['zloss_b'][-1]:.6f}"
+        else:
+            desc = f"Epoch {epoch} - Train:{self.loss['tloss_e'][-1]:.4f}"
+            if self.options["validate"]:
+                desc += f", Val:{self.loss['vloss_e'][-1]:.4f}"
+        
+        if self.train_tqdm:
+            self.train_tqdm.set_description(desc)
+
+
+    # ─── Persistence ────────────────────────────────────────────────────────
+
+    def save_weights(self, client: int) -> None:
+        """
+        Save model weights to disk.
+        
+        Args:
+            client: Client ID for filename
+        """
+        prefix = self.options["prefix"]
+        
+        for model_name, model in self.model_dict.items():
+            save_path = os.path.join(
+                self._model_path,
+                f"{model_name}_{prefix}.pth"
+            )
+            th.save(model.state_dict(), save_path)
+        
+        print(f"[INFO] Model weights saved for client {client}")
+
+
+    def load_models(self, client: int) -> None:
+        """
+        Load model weights from disk.
+        
+        Args:
+            client: Client ID for filename
+        """
+        prefix = self.options["prefix"]
+        
+        for model_name, model in self.model_dict.items():
+            load_path = os.path.join(
+                self._model_path,
+                f"{model_name}_{prefix}.pth"
+            )
+            model.load_state_dict(
+                th.load(load_path, map_location=self.device)
+            )
+            model.eval()
+            print(f"[INFO] Loaded {model_name} for client {client}")
+
+
+    def saveTrainParams(self, client: int) -> None:
+        """
+        Save training metrics and plots.
+        
+        Args:
+            client: Client ID for filename
+        """
+        prefix = self.options["prefix"]
+        
+        # Save loss plot
+        save_loss_plot(self.loss, self._plots_path, prefix)
+        
+        # Save loss dataframe
+        loss_df = pd.DataFrame({
+            k: pd.Series(v, dtype="float")
+            for k, v in self.loss.items()
+        })
+        
+        loss_path = os.path.join(self._loss_path, f"{prefix}-losses.csv")
+        loss_df.to_csv(loss_path)
+        
+        print(f"[INFO] Training parameters saved for client {client}")
+
+
+    # ─── Continual Learning Support ─────────────────────────────────────────
+
+    def on_task_update(self, data_loader) -> None:
+        """
+        Compute Fisher information for continual learning.
+        
+        Args:
+            data_loader: Data loader for computing gradients
+        """
         self.fisher_dict = {}
         self.optpar_dict = {}
         
-        # Store parameters and their gradients safely
+        for data, _ in data_loader:
+            self.optimizer_ae.zero_grad()
+            
+            tloss, _, _, _ = self.fit(data)
+            tloss.backward()
+        
+        # Store Fisher information and optimal parameters
         for name, param in self.encoder.named_parameters():
-            # Store parameter values
             self.optpar_dict[name] = param.data.clone()
             
-            # Check if gradient exists before accessing .data
             if param.grad is not None:
-                self.fisher_dict[name] = param.grad.data.clone()
+                self.fisher_dict[name] = param.grad.data.clone().pow(2)
             else:
-                # Handle the case where gradient is None
-                print(f"Warning: No gradient for parameter {name}")
-                self.fisher_dict[name] = torch.zeros_like(param.data)
+                print(f"[WARNING] No gradient for parameter: {name}")
+                self.fisher_dict[name] = th.zeros_like(param.data)
+
+
+    # ─── Properties ─────────────────────────────────────────────────────────
+
+    def get_loss(self) -> Dict[str, List[float]]:
+        """Get loss history."""
+        return self.loss
+
+
+    def set_loss(self, loss: Dict[str, List[float]]) -> None:
+        """Set loss history."""
+        self.loss = loss
+
+
+    # ─── Private Methods ────────────────────────────────────────────────────
+
+    def _update_model(
+        self,
+        loss: Tensor,
+        optimizer: th.optim.Optimizer,
+        retain_graph: bool = True
+    ) -> None:
+        """
+        Perform backpropagation and update model.
+        
+        Args:
+            loss: Loss tensor with computation graph
+            optimizer: Optimizer to use
+            retain_graph: Whether to retain computation graph
+        """
+        optimizer.zero_grad()
+        loss.backward(retain_graph=retain_graph)
+        optimizer.step()
+        th.cuda.empty_cache()
+
+
+    def _set_paths(self) -> None:
+        """Setup paths for saving results."""
+        base = os.path.join(
+            self.options["paths"]["results"],
+            self.options["framework"]
+        )
+        
+        training_base = os.path.join(base, "training", self.options["model_mode"])
+        
+        self._results_path = base
+        self._model_path = os.path.join(training_base, "model")
+        self._plots_path = os.path.join(training_base, "plots")
+        self._loss_path = os.path.join(training_base, "loss")
+
+
+    def _adam(
+        self,
+        params: List,
+        lr: float = 1e-4
+    ) -> th.optim.AdamW:
+        """
+        Create AdamW optimizer.
+        
+        Args:
+            params: List of parameter groups
+            lr: Learning rate
+            
+        Returns:
+            AdamW optimizer
+        """
+        return th.optim.AdamW(
+            itertools.chain(*params),
+            lr=lr,
+            betas=(0.9, 0.999),
+            eps=1e-07
+        )
+
+
+    def _tensor(self, data: Tensor) -> Tensor:
+        """
+        Move tensor to device and convert to float.
+        
+        Args:
+            data: Input tensor
+            
+        Returns:
+            Tensor on device as float
+        """
+        return data.to(self.device).float()
+
+
+    def print_model_summary(self) -> None:
+        """Print model architecture summary."""
+        print("=" * 100)
+        print(f"CFL Model Architecture - {self.options['model_mode'].upper()}")
+        print("=" * 100)
+        print(self.encoder)
+        print("=" * 100)
+
+
+    def clean_up_memory(self, losses: List[Tensor]) -> None:
+        """
+        Clean up memory by deleting loss tensors.
+        
+        Args:
+            losses: List of loss tensors to delete
+        """
+        for loss in losses:
+            del loss
+        gc.collect()

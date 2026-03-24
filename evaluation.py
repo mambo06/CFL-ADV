@@ -1,75 +1,132 @@
-# https://github.com/AstraZeneca/SubTab
-
+"""
+Federated Learning Evaluation Script
+Evaluates trained models across all federated clients.
+Reference: https://github.com/AstraZeneca/SubTab
+"""
 
 import copy
-import time
-from tqdm import tqdm
-import gc
-import itertools
+import json
+from pathlib import Path
+from typing import Dict, Any, List
 
-import mlflow
-import yaml
-
-import _eval as eval
-import _evalRetrain as eval
-# from src.model import CFL
-from utils.arguments import get_arguments, get_config, print_config_summary
-from utils.load_data import Loader
-from utils.utils import set_dirs, run_with_profiler, update_config_with_model_dims
 import numpy as np
 
-import torch
-from pathlib import Path
-import json
+import _eval as eval
+from utils.arguments import get_arguments, get_config, print_config_summary
+from utils.utils import update_config_with_model_dims
 
 
-def main(config):
+# ─── Helpers ────────────────────────────────────────────────────────────────
+
+def build_experiment_tag(config: Dict[str, Any], client_id: int) -> str:
+    """Build a consistent experiment identifier string."""
+    return (
+        f"Cl-{client_id}-"
+        f"{config['epochs']}e-"
+        f"{config['fl_cluster']}fl-"
+        f"{config['malClient']}mc-"
+        f"{config['attack_type']}_at-"
+        f"{config['defense_type']}_dt-"
+        f"{config['randomLevel']}rl-"
+        f"{config['dataset']}"
+    )
+
+
+def load_dataset_info(dataset_name: str) -> Dict[str, Any]:
+    """Load dataset metadata from info.json."""
+    info_path = Path(f"data/{dataset_name}/info.json")
+    return json.loads(info_path.read_text())
+
+
+def configure_for_evaluation(config: Dict[str, Any]) -> Dict[str, Any]:
+    """Apply evaluation-specific configuration overrides."""
+    eval_config = copy.deepcopy(config)
     
+    # Evaluation mode settings
+    eval_config["add_noise"] = False
+    eval_config["validate"] = False
     
-    # Disable adding noise since we are in evaluation mode
-    config["add_noise"] = False
-    # Turn off valiation
-    config["validate"] = False
-    # Get all of available training set for evaluation (i.e. no need for validation set)
-    # config["training_data_ratio"] = 0.1
-
-    rst = []
-    for client in range(config["fl_cluster"]):
-        config['client'] = client
-        prefix = (f"Cl-{client}-{config['epochs']}e-{config['fl_cluster']}fl-"
-                 f"{config['malClient']}mc-{config['attack_type']}_at-"
-                 f"{config['defense_type']}_dt-"
-                 f"{config['randomLevel']}rl-{config['dataset']}"
-                 )
-        config.update({"prefix":prefix})
-
-        results = eval.main(copy.deepcopy(config))
-        # print(f'result : {results}')
-        # results = eval.main(config, client)
-    #     rst.append(results[0]['test_acc'][2])
-    # print('Mean results :',np.mean(rst))
+    # Optional: uncomment to use full training set for evaluation
+    # eval_config["training_data_ratio"] = 1.0
+    
+    return eval_config
 
 
-if __name__ == "__main__": 
-    # Get parser / command line arguments
-    args = get_arguments()
-    # Get configuration file
+# ─── Main ───────────────────────────────────────────────────────────────────
+
+def main(config: Dict[str, Any]) -> None:
+    """
+    Evaluate trained federated learning models across all clients.
+    
+    Args:
+        config: Configuration dictionary containing experiment parameters
+    """
+    config = configure_for_evaluation(config)
+    
+    results = []
+    
+    for client_id in range(config["fl_cluster"]):
+        config["client"] = client_id
+        config["prefix"] = build_experiment_tag(config, client_id)
+        
+        print(f"\n[INFO] Evaluating client {client_id}/{config['fl_cluster']-1}")
+        print(f"[INFO] Tag: {config['prefix']}")
+        
+        # Evaluate single client
+        client_results = eval.main(copy.deepcopy(config))
+        results.append(client_results)
+        
+        # Optional: extract and aggregate specific metrics
+        # if client_results and 'test_acc' in client_results[0]:
+        #     results.append(client_results[0]['test_acc'][2])
+    
+    # Optional: compute and display aggregate statistics
+    # if results:
+    #     print(f"\n[SUMMARY] Mean test accuracy: {np.mean(results):.4f}")
+    #     print(f"[SUMMARY] Std test accuracy:  {np.std(results):.4f}")
+    
+    print(f"\n[INFO] Evaluation complete for {len(results)} clients")
+
+
+def setup_config(args) -> Dict[str, Any]:
+    """
+    Initialize and prepare configuration for evaluation.
+    
+    Args:
+        args: Command-line arguments
+        
+    Returns:
+        Configured dictionary ready for evaluation
+    """
     config = get_config(args)
-    # Overwrite the parent folder name for saving results
-    config["framework"] = config["dataset"]
-    # Get a copy of autoencoder dimensions
-    dims = copy.deepcopy(config["dims"])
-    # Summarize config and arguments on the screen as a sanity check
-    # config["shuffle_list"] = [[] for i in range( config["fl_cluster"])] # ordered shuffle each client / federated cluster
-    #----- Moving to evaluation stage
-    # Reset the autoencoder dimension since it was changed in train.py
-    config["dims"] = dims
-    config["framework"] = config["dataset"]
-    config['task_type'] = json.loads(Path('data/'+config["dataset"]+'/info.json').read_text())['task_type']
-    config['cat_policy'] = json.loads(Path('data/'+config["dataset"]+'/info.json').read_text())['cat_policy']
-    config['norm'] = json.loads(Path('data/'+config["dataset"]+'/info.json').read_text())['norm']
-    config['learning_rate_reducer'] = config['learning_rate']
-    # print_config_summary(config, args)
-    main(config)
     
+    # Framework and dataset setup
+    config["framework"] = config["dataset"]
+    
+    # Load dataset metadata
+    dataset_info = load_dataset_info(config["dataset"])
+    config.update({
+        "task_type": dataset_info["task_type"],
+        "cat_policy": dataset_info["cat_policy"],
+        "norm": dataset_info["norm"],
+    })
+    
+    # Preserve learning rate
+    config.setdefault("learning_rate_reducer", config["learning_rate"])
+    
+    # Preserve original autoencoder dimensions if they were modified during training
+    if "dims_original" in config:
+        config["dims"] = config["dims_original"]
+    
+    return config
 
+
+if __name__ == "__main__":
+    args = get_arguments()
+    config = setup_config(args)
+    
+    # Optional: print configuration summary
+    if config.get("verbose"):
+        print_config_summary(config, args)
+    
+    main(config)
