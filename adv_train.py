@@ -24,7 +24,8 @@ from servers.robustserver import RobustServer
 
 def run(config, save_weights):
     config = copy.deepcopy(config)
-    ds_loader = Loader(config, dataset_name=config["dataset"], client=0)
+    config['client'] = 0 
+    ds_loader = Loader(config, dataset_name=config["dataset"])
     config = update_config_with_model_dims(ds_loader, config)
     global_model = CFL(config)
     server = RobustServer(
@@ -57,7 +58,8 @@ def run(config, save_weights):
                  f"{config['randomLevel']}rl-{config['dataset']}"
                  )
         config.update({"prefix":prefix})
-        loader = Loader(config, dataset_name=config["dataset"], client=clt).trainFL_loader
+        config['client'] = clt
+        loader = Loader(config, dataset_name=config["dataset"]).trainFL_loader
         # Use MaliciousClient for poisoned clients
         if clt in poison_clients:
             client = MaliciousClient(

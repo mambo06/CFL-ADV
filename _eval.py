@@ -118,10 +118,12 @@ def evalulate_models(data_loader, model, config, client, plot_suffix="_Test", mo
     #     data_loader_tr_or_te = data_loader.train_loader if mode == 'train' else data_loader.validation_loader
 
     #data loader support data drop
-    if nData != None :
-        data_loader_tr_or_te = data_loader.trainFL_loader if mode == 'train' else data_loader.test_loader
-    else:
-        data_loader_tr_or_te = data_loader.trainFL_loader 
+    # print(f'nData :{nData==None}')
+    # if nData != None :
+    #     data_loader_tr_or_te = data_loader.trainFL_loader if mode == 'train' else data_loader.test_loader
+    # else:
+    
+    data_loader_tr_or_te = data_loader.trainFL_loader 
 
     # Attach progress bar to data_loader to check it during training. "leave=True" gives a new line per epoch
     train_tqdm = tqdm(enumerate(data_loader_tr_or_te), total=len(data_loader_tr_or_te), leave=True)
@@ -170,7 +172,7 @@ def evalulate_models(data_loader, model, config, client, plot_suffix="_Test", mo
     z =   z[int(dims[0] * config['training_data_ratio']):]
     y_train = clabels[:int(dims[0] * config['training_data_ratio'])] 
     clabels=  clabels[int(dims[0] * config['training_data_ratio']):] 
-    print(z_train.shape,z.shape)
+    # print(z_train.shape,z.shape)
     # print(mode)
 
     # Visualise clusters

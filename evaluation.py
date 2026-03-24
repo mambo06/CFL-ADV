@@ -11,7 +11,8 @@ import mlflow
 import yaml
 
 import _eval as eval
-from src.model import CFL
+import _evalRetrain as eval
+# from src.model import CFL
 from utils.arguments import get_arguments, get_config, print_config_summary
 from utils.load_data import Loader
 from utils.utils import set_dirs, run_with_profiler, update_config_with_model_dims
@@ -34,13 +35,22 @@ def main(config):
 
     rst = []
     for client in range(config["fl_cluster"]):
+        config['client'] = client
+        prefix = (f"Cl-{client}-{config['epochs']}e-{config['fl_cluster']}fl-"
+                 f"{config['malClient']}mc-{config['attack_type']}_at-"
+                 f"{config['defense_type']}_dt-"
+                 f"{config['randomLevel']}rl-{config['dataset']}"
+                 )
+        config.update({"prefix":prefix})
 
-        results = eval.main(config, client)
-        rst.append(results[0]['test_acc'][2])
-    print('Mean results :',np.mean(rst))
+        results = eval.main(copy.deepcopy(config))
+        # print(f'result : {results}')
+        # results = eval.main(config, client)
+    #     rst.append(results[0]['test_acc'][2])
+    # print('Mean results :',np.mean(rst))
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     # Get parser / command line arguments
     args = get_arguments()
     # Get configuration file

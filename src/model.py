@@ -414,3 +414,30 @@ class CFL:
     def _tensor(self, data):
 
         return data.to(self.device).float()
+    def on_task_update(self, data_loader):
+        # Process data through the model to compute gradients
+        for data, _ in data_loader:
+            # Make sure to zero gradients before computing them
+            self.optimizer_ae.zero_grad()
+            
+            # Get losses
+            tloss, _, _, _ = self.fit(data)
+            
+            # Compute gradients
+            tloss.backward()
+        
+        self.fisher_dict = {}
+        self.optpar_dict = {}
+        
+        # Store parameters and their gradients safely
+        for name, param in self.encoder.named_parameters():
+            # Store parameter values
+            self.optpar_dict[name] = param.data.clone()
+            
+            # Check if gradient exists before accessing .data
+            if param.grad is not None:
+                self.fisher_dict[name] = param.grad.data.clone()
+            else:
+                # Handle the case where gradient is None
+                print(f"Warning: No gradient for parameter {name}")
+                self.fisher_dict[name] = torch.zeros_like(param.data)

@@ -147,7 +147,8 @@ class Client:
 
 def run(config, save_weights, poison):
     config = copy.deepcopy(config)
-    ds_loader = Loader(config, dataset_name=config["dataset"], client=0)
+    config['client'] = 0
+    ds_loader = Loader(config, dataset_name=config["dataset"])
     config = update_config_with_model_dims(ds_loader, config)
     global_model = CFL(config)
     server = Server(global_model,config)
@@ -164,8 +165,9 @@ def run(config, save_weights, poison):
                  f"{config['malClient']}mc-{config['attack_type']}_at-"
                  f"{config['randomLevel']}rl-{config['dataset']}")
         config.update({"prefix":prefix})
+        config['client'] = clt
 
-        loader = Loader(config, dataset_name=config["dataset"], client=clt).trainFL_loader
+        loader = Loader(config, dataset_name=config["dataset"]).trainFL_loader
         client = Client(global_model, loader, clt)
         client.poison = clt in poison_clients
         clients.append(client)
@@ -212,6 +214,7 @@ def main(config):
     })
 
     run(config, save_weights=True, poison=config['poison'])
+
     eval.main(copy.deepcopy(config))
 
 
