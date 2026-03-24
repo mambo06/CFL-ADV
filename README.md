@@ -8,21 +8,7 @@
 >
 > 📄 [Read the Paper](https://papers.ssrn.com/abstract=5799977)
 
----
 
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Configuration](#configuration)
-- [Adversarial Settings](#adversarial-settings)
-- [Results](#results)
-- [Citation](#citation)
-- [License](#license)
-
----
 
 ## 🎯 Overview
 
