@@ -215,78 +215,148 @@ class GeometricMedianDefense(BaseDefense):
             
         return median
 
+import torch
+from typing import Dict, Any, List
+
+
 class FoolsGoldDefense(BaseDefense):
     def __init__(self, config: Dict[str, Any]):
         super().__init__(config)
-        self.memory = {}
+        self.memory = None
         self.epsilon = 1e-5
+
+    def _get_valid_keys(self, updates: List[Dict[str, torch.Tensor]]):
+        """
+        Return keys that exist in all clients and have identical shapes.
+        """
+        common_keys = set(updates[0].keys())
+
+        for update in updates[1:]:
+            common_keys = common_keys.intersection(set(update.keys()))
+
+        valid_keys = []
+
+        for k in sorted(common_keys):
+            ref_shape = updates[0][k].shape
+            valid = True
+
+            for update in updates:
+                if update[k].shape != ref_shape:
+                    valid = False
+                    break
+
+            if valid:
+                valid_keys.append(k)
+
+        return valid_keys
+
+    def _flatten_update(self, update: Dict[str, torch.Tensor], valid_keys: List[str]):
+        """
+        Flatten one client update into a single vector using only valid keys.
+        """
+        flat_tensors = []
+
+        for k in valid_keys:
+            tensor = update[k].detach().float().reshape(-1)
+            flat_tensors.append(tensor)
+
+        if len(flat_tensors) == 0:
+            raise RuntimeError("No valid matching keys found across client updates.")
+
+        return torch.cat(flat_tensors)
 
     def aggregate(self, updates: List[Dict[str, torch.Tensor]]) -> Dict[str, torch.Tensor]:
         n_clients = len(updates)
-        
-        # Initialize memory if needed
-        if not self.memory:
-            for k in updates[0].keys():
-                self.memory[k] = torch.zeros((n_clients,) + tuple(updates[0][k].shape),
-                                          dtype=torch.float32)
+
+        if n_clients == 0:
+            raise ValueError("No updates provided to FoolsGoldDefense.")
+
+        valid_keys = self._get_valid_keys(updates)
+
+        if len(valid_keys) == 0:
+            raise RuntimeError(
+                "No common parameters with identical shapes across all clients. "
+                "Check that all clients use the same model architecture and update format."
+            )
+
+        # Flatten all client updates consistently
+        flat_updates = []
+
+        for update in updates:
+            flat_update = self._flatten_update(update, valid_keys)
+            flat_updates.append(flat_update)
+
+        lengths = [x.numel() for x in flat_updates]
+
+        if len(set(lengths)) != 1:
+            raise RuntimeError(
+                f"Flattened update sizes do not match: {lengths}. "
+                "This means client updates are structurally inconsistent."
+            )
+
+        flat_updates = torch.stack(flat_updates, dim=0)
+
+        # Initialize or reset memory if shape/client count changed
+        if (
+            self.memory is None
+            or self.memory.shape != flat_updates.shape
+        ):
+            self.memory = torch.zeros_like(flat_updates)
 
         # Update memory
-        for i, update in enumerate(updates):
-            for k in update.keys():
-                # Ensure the update tensor has the correct shape
-                update_tensor = update[k].float()
-                if len(update_tensor.shape) != len(self.memory[k].shape[1:]):
-                    # Reshape if necessary (handle the case where tensor has extra dimensions)
-                    if len(update_tensor.shape) > len(self.memory[k].shape[1:]):
-                        # If update has extra dimensions, squeeze them out
-                        update_tensor = update_tensor.squeeze()
-                    else:
-                        # If update needs more dimensions, unsqueeze as needed
-                        while len(update_tensor.shape) < len(self.memory[k].shape[1:]):
-                            update_tensor = update_tensor.unsqueeze(0)
-                
-                # Ensure the shapes match exactly
-                if update_tensor.shape != self.memory[k].shape[1:]:
-                    update_tensor = update_tensor.view(self.memory[k].shape[1:])
-                
-                self.memory[k][i] = update_tensor
+        self.memory += flat_updates
 
-        # Calculate cosine similarities
-        cs = torch.zeros((n_clients, n_clients))
-        for i in range(n_clients):
-            for j in range(n_clients):
-                if i != j:
-                    similarity = 0
-                    magnitude_i = 0
-                    magnitude_j = 0
-                    for k in self.memory.keys():
-                        similarity += torch.sum(self.memory[k][i] * self.memory[k][j])
-                        magnitude_i += torch.sum(self.memory[k][i] ** 2)
-                        magnitude_j += torch.sum(self.memory[k][j] ** 2)
-                    cs[i][j] = similarity / ((magnitude_i * magnitude_j) ** 0.5 + self.epsilon)
+        # Cosine similarity matrix
+        normalized_memory = self.memory / (
+            torch.norm(self.memory, dim=1, keepdim=True) + self.epsilon
+        )
 
-        # Calculate weights using FoolsGold algorithm
-        weights = torch.ones(n_clients)
+        cs = torch.mm(normalized_memory, normalized_memory.t())
+
+        # Ignore self-similarity
+        cs.fill_diagonal_(0.0)
+
+        # FoolsGold weighting
+        max_cs, _ = torch.max(cs, dim=1)
+
+        weights = torch.ones(n_clients, device=flat_updates.device)
+
         for i in range(n_clients):
-            cs_max = torch.max(cs[i])
-            for j in range(n_clients):
-                if i != j:
-                    weights[i] *= (1 - cs[i][j] / cs_max)
+            if max_cs[i] > self.epsilon:
+                weights[i] = 1.0 - max_cs[i]
+            else:
+                weights[i] = 1.0
+
+        # Clamp for numerical stability
+        weights = torch.clamp(weights, min=0.0, max=1.0)
 
         # Normalize weights
         weights = weights / (torch.sum(weights) + self.epsilon)
 
-        # Aggregate updates using calculated weights
+        # Aggregate original tensors
         aggregated = {}
+
         for k in updates[0].keys():
-            # Initialize with the correct shape
-            aggregated[k] = torch.zeros_like(updates[0][k].float())
-            for i, update in enumerate(updates):
-                update_tensor = update[k].float()
-                # Ensure shapes match before adding
-                if update_tensor.shape != aggregated[k].shape:
-                    update_tensor = update_tensor.view(aggregated[k].shape)
-                aggregated[k] += weights[i] * update_tensor
+            # Only aggregate keys with matching shape across all clients
+            if k in valid_keys:
+                aggregated[k] = torch.zeros_like(updates[0][k].float())
+
+                for i, update in enumerate(updates):
+                    aggregated[k] += weights[i].to(update[k].device) * update[k].float()
+
+            else:
+                # Fallback: if key is not valid, use simple average only among matching shapes
+                ref_shape = updates[0][k].shape
+                matching = [
+                    update[k].float()
+                    for update in updates
+                    if k in update and update[k].shape == ref_shape
+                ]
+
+                if len(matching) > 0:
+                    aggregated[k] = torch.stack(matching, dim=0).mean(dim=0)
+                else:
+                    aggregated[k] = updates[0][k].float()
 
         return aggregated
 
