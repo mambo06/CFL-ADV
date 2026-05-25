@@ -11,7 +11,7 @@ from typing import Dict, Any, List
 
 import numpy as np
 
-import _eval as eval
+import _evalRetrain as eval
 from utils.arguments import get_arguments, get_config, print_config_summary
 from utils.utils import update_config_with_model_dims
 
@@ -20,6 +20,7 @@ from utils.utils import update_config_with_model_dims
 
 def build_experiment_tag(config: Dict[str, Any], client_id: int) -> str:
     """Build a consistent experiment identifier string."""
+    config['randomLevel'] = config['randomLevel'] if config['randomLevel'] < 1 else int(config['randomLevel'])
     return (
         f"Cl-{client_id}-"
         f"{config['epochs']}e-"

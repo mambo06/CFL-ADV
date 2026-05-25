@@ -149,7 +149,7 @@ def get_arguments() -> Namespace:
     parser.add_argument(
         "-rl", "--randomLevel",
         type=float,
-        default=0.8,
+        default=1,
         help="Randomness level for random defense (0.0-1.0)"
     )
 

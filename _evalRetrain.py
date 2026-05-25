@@ -1,5 +1,3 @@
-
-
 import sys
 # import mlflow
 import torch as th
@@ -10,7 +8,7 @@ import numpy as np
 from src.model import CFL
 from utils.arguments import get_arguments, get_config
 from utils.arguments import print_config_summary
-from utils.eval_utils_retrain import linear_model_eval, plot_clusters, append_tensors_to_lists, concatenate_lists, aggregate
+from utils.eval_utils_retrain import linear_model_eval, append_tensors_to_lists, concatenate_lists, aggregate
 from utils.load_data import Loader
 from utils.utils import set_dirs, run_with_profiler, update_config_with_model_dims
 
